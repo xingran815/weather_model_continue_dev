@@ -1,4 +1,4 @@
-Project Name
+Project Name: Predicting Rain in Australia
 ==============================
 
 This project is a starting Pack for MLOps projects based on the subject "movie_recommandation". It's not perfect so feel free to make some modifications on it.
