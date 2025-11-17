@@ -8,8 +8,8 @@ The aim of the project is to predict if it will rain tomorrow based on todays we
 Data Exploration
 ------------
 The given Dataset from Australia has 23 different columns and contains 145460 data entrys.
-The target column is RainTomorrow, which is a binary variable (true/false). The target is unevenly distibuted (lot less rainy days).
-The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction) and if it rains today (true/false).
+The target column is RainTomorrow, which is a Boolean. The target is unevenly distibuted (fewer rainy days).
+The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
 Missing values in %
@@ -44,7 +44,7 @@ How  to proceed with missing values:
 
 First Observation
 ------------
-If it rains today, there is 50% chance that it also rains tomorrow. If it dows not rain today, it will most likely also not rain tomorrow.
+If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, it will most likely also not rain tomorrow.
 
 Preprocessing data
 ------------
@@ -52,10 +52,10 @@ Preprocessing data
     - delete entrys with over 10% of missing values
     - replace Nans for cateforical variables with mode
     - replace Nans for numerical variables with median
-- delete Date column since it is not used for modelling
-- encode RainToday and RainTomorrow in binary variable (0/1)
+- delete Date column since it is not used for modelling (note from Reviewer: Not sure yet about this, at least it is probably reduntant since it is highly correlated with the other values.)
+- encode RainToday and RainTomorrow in binary variable (0/1) (note from Reviewer: Or as Boolean (True/False), maybe we will choose a binary decision tree)
 - encode location and variables for wind direction with get_dummies
-- Should we include Scaling?
+- Should we include Scaling? (note from Reviewer, most likely yes, I would propose a vector normalization or Min/Max normalization
 
 
 Project Organization
