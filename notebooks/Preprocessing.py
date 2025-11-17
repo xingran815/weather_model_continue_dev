@@ -1,6 +1,16 @@
 import pandas as pd
 import numpy as np
 
+
+
+def vector_normalize(X):
+    ''' Normalize the data using vector normalization
+    '''
+    X_np = X.values.astype(float)
+    norms = np.linalg.norm(X_np, axis=1, keepdims=True)
+    X_normalized = X_np /norms
+    return pd.DataFrame(X_normalized, columns=X.columns)
+
 #############
 #Read file
 
@@ -8,11 +18,6 @@ df= pd.read_csv(r"data\raw\weatherAUS.csv")
 
 #################
 #Handeling Nans
-
-# droping columns with 11% and more missing values
-
-df= df.drop(["Evaporation","Sunshine","Cloud9am","Cloud3pm"], axis=1)
-
 # Get categorical variables
 s = (df.dtypes == "object")
 object_cols = list(s[s].index)
@@ -29,21 +34,23 @@ num_cols = list(t[t].index)
 for i in num_cols:
     df[i].fillna(df[i].median(), inplace=True)
 
-# drop date column to not include in modelling
-df.drop(columns = ['Date'], inplace = True)
-
 #############
 # Encoding
 
-# Replace RainToday and Raintomorrow with binary values (0:no rain, 1:rain)
-df['RainToday'].replace({'No': 0, 'Yes': 1},inplace = True)
-df['RainTomorrow'].replace({'No': 0, 'Yes': 1},inplace = True)
+# Replace RainToday and Raintomorrow with Booleans 
+df['RainToday'].replace({'No': False, 'Yes': True})
+df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
 # Encode with get_dummies
 df = pd.get_dummies(df, dtype=float)
 
 #############
-# Should we add Scaling?
+# vector normalization as an example
+
+num_cols = df.select_dtypes(include=[np.number]).columns # only  columns with numbers
+df[num_cols] = vector_normalize(df[num_cols])
+
+
 
 #############
 #Exporting file
