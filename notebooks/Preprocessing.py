@@ -41,14 +41,16 @@ for i in num_cols:
 df['RainToday'].replace({'No': False, 'Yes': True})
 df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
-# Encode with get_dummies
-df = pd.get_dummies(df, dtype=float)
+
 
 #############
 # vector normalization as an example
 
 num_cols = df.select_dtypes(include=[np.number]).columns # only  columns with numbers
 df[num_cols] = vector_normalize(df[num_cols])
+
+# Encode with get_dummies
+df = pd.get_dummies(df, dtype=float)
 
 
 
