@@ -14,7 +14,7 @@ def vector_normalize(X):
 #############
 #Read file
 
-df= pd.read_csv(r"data\raw\weatherAUS.csv")
+df= pd.read_csv(r"weatherAUS.csv")
 
 #################
 #Handeling Nans
@@ -41,8 +41,9 @@ for i in num_cols:
 df['RainToday'].replace({'No': False, 'Yes': True})
 df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
-# Encode with get_dummies
-df = pd.get_dummies(df, dtype=float)
+# ADDED: assign the replacements back to the columns
+df['RainToday'] = df['RainToday'].replace({'No': False, 'Yes': True})
+df['RainTomorrow'] = df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
 #############
 # vector normalization as an example
@@ -50,8 +51,15 @@ df = pd.get_dummies(df, dtype=float)
 num_cols = df.select_dtypes(include=[np.number]).columns # only  columns with numbers
 df[num_cols] = vector_normalize(df[num_cols])
 
+# ADDED: drop Date
+if 'Date' in df.columns:
+    df = df.drop(columns=['Date'])
+
+# Encode with get_dummies
+df = pd.get_dummies(df, dtype=float)
+
 
 
 #############
 #Exporting file
-df.to_csv(r"data\processed\weatherAUS_preprocessed.csv")
+df.to_csv(r"weatherAUS_preprocessed.csv")
