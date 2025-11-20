@@ -62,4 +62,4 @@ df = pd.get_dummies(df, dtype=float)
 
 #############
 #Exporting file
-df.to_csv(r"data\processed\weatherAUS_preprocessed.csv
+df.to_csv(r"data\processed\weatherAUS_preprocessed.csv")
