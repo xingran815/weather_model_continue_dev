@@ -14,7 +14,7 @@ def vector_normalize(X):
 #############
 #Read file
 
-df= pd.read_csv(r"data\raw\weatherAUS.csv")
+df= pd.read_csv(r"weatherAUS.csv")
 
 #################
 #Handeling Nans
@@ -45,7 +45,6 @@ df['RainTomorrow'].replace({'No': False, 'Yes': True})
 df['RainToday'] = df['RainToday'].replace({'No': False, 'Yes': True})
 df['RainTomorrow'] = df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
-
 #############
 # vector normalization as an example
 
@@ -63,4 +62,4 @@ df = pd.get_dummies(df, dtype=float)
 
 #############
 #Exporting file
-df.to_csv(r"data\processed\weatherAUS_preprocessed.csv")
+df.to_csv(r"weatherAUS_preprocessed.csv")
