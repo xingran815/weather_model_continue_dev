@@ -1,8 +1,11 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 SQL_PATH = 'data/raw/weather_australia.db'
 TABLE_NAME = 'weather_table'
+NEW_TABLE_NAME = 'weather_subset'
+
+TABLE_PERCENT = 0.1  # 10 percent of the data
 
 engine = create_engine(f'sqlite:///{SQL_PATH}')
 
@@ -45,8 +48,27 @@ all locations:
  'Walpole' 'Hobart' 'Launceston' 'AliceSprings' 'Darwin' 'Katherine'
  'Uluru']
  '''
-query = f"SELECT {', '.join(columns_to_load)} FROM {TABLE_NAME} WHERE Location='Sydney'"
+#query = f"SELECT {', '.join(columns_to_load)} FROM {TABLE_NAME} WHERE Location='Sydney'"
 
-df = pd.read_sql(query, engine)
 
-df.to_csv('data/raw/sydney_weather.csv', index=False)
+# Filter random 10 % from the data
+
+with engine.connect() as conn:
+    conn.execute(text(
+        f"""
+        CREATE TABLE {NEW_TABLE_NAME} AS
+        SELECT *
+        FROM {TABLE_NAME}
+        ORDER BY RANDOM()
+        LIMIT (SELECT CAST(COUNT(*) * {TABLE_PERCENT} AS INT) FROM {TABLE_NAME})
+        """
+    ))
+
+with engine.connect() as conn:
+    result = conn.execute(text(f"SELECT COUNT(*) FROM {NEW_TABLE_NAME}")).fetchone()
+    print(result)   
+
+
+df = pd.read_sql(f"SELECT * FROM {NEW_TABLE_NAME}", engine)
+
+df.to_csv('data/raw/weather_10percent.csv', index=False)
