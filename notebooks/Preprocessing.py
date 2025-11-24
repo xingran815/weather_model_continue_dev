@@ -45,6 +45,7 @@ df['RainTomorrow'].replace({'No': False, 'Yes': True})
 df['RainToday'] = df['RainToday'].replace({'No': False, 'Yes': True})
 df['RainTomorrow'] = df['RainTomorrow'].replace({'No': False, 'Yes': True})
 
+
 #############
 # vector normalization as an example
 
