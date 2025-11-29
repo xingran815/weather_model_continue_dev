@@ -15,11 +15,11 @@ def training():
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     MODEL_PATH = os.path.join(MODEL_DIR, "best_model.pkl")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
-    PROCESSED_PATH = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_10percent_preprocessed.csv")
+    PROCESSED_PATH = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_20percent_preprocessed.csv")
 
     # initialize mlflow experiment
     mlflow.set_tracking_uri("http://localhost:8080") 
-    mlflow.set_experiment("MLflow Tracking-Weather Australia_10percent")
+    mlflow.set_experiment("MLflowTrackingWeatherAustralia_20percent")
     mlflow.sklearn.autolog()
 
     df = pd.read_csv(PROCESSED_PATH)
@@ -108,5 +108,5 @@ def training():
 #####################################################
 
 
-# if __name__ == "__main__":
-#     train_model()
+if __name__ == "__main__":
+    training()
