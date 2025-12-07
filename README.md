@@ -117,7 +117,7 @@ src/test.sql.py
 src/data/make_dataset.py
 -> loads the sql, ignores specific columns and simply filter (e.g the location) the big database. The results will be saved in data/raw
 --note: for first instances the data folder and the database are not gitignored!!
--> make dataset filters the .db for e.g location or select a random amonúnt of data for the subset
+-> make dataset filters the .db for e.g location or select a random amonúnt of data for the subset and save it as .csv with current date
 
 Working with a real MySQL project.
 - no databases are shared directly, raw data is weatherAUS.csv
