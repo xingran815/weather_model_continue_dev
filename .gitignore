@@ -9,6 +9,7 @@ __pycache__/
 .Python
 .venv/
 env/
+venv/
 build/
 develop-eggs/
 dist/
@@ -93,3 +94,5 @@ data/processed/
 
 # MLflow files
 mlruns/
+mlartifacts/
+mlflow.db
