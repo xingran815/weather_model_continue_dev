@@ -140,3 +140,43 @@ MLFLOW
 - mlflow_server.sh 
     * sets up the mlflow server (http://localhost:8080)
 - train model with simple mlflow architecture for tracking    
+
+Docker (training container)
+---------------------------
+Use the training image built from `docker/training/Dockerfile.training`.
+
+1) Start MLflow on host (repo root, venv optional):
+```
+mlflow server --host 0.0.0.0 --port 8080 --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlartifacts
+```
+
+2) Build the image:
+```
+docker build -t weather-training -f docker/training/Dockerfile.training .
+```
+
+3) Run training in Docker (set MLFLOW_TRACKING_URI to your host IP):
+```
+docker run --rm -e MLFLOW_TRACKING_URI=http://<your-host-ip>:8080 weather-training python -u src/models/train_model.py
+```
+
+Docker (prediction container)
+-----------------------------
+Prediction uses the latest trained model from local MLflow artifacts (`mlartifacts`) and writes a CSV with predictions.
+
+1) Make sure training has been run at least once (so `mlartifacts/**/artifacts/model.pkl` exists).
+
+2) Run prediction in Docker (host paths, from repo root):
+```
+docker run --rm -it ^
+  -v "C:/Users/ASK IT SOLUTION/Documents/MLOP/oct25_bmlops_int_weather/data:/app/data" ^
+  -v "C:/Users/ASK IT SOLUTION/Documents/MLOP/oct25_bmlops_int_weather/mlartifacts:/app/mlartifacts" ^
+  weather-training python -u src/models/predict_model.py ^
+    /app/data/processed/weatherAUS_10percent_preprocessed.csv ^
+    /app/data/processed/weather_predictions.csv
+```
+
+This will:
+- Load the latest `model.pkl` from `mlartifacts/**/artifacts/model.pkl`
+- Evaluate on the input file
+- Save predictions to `data/processed/weather_predictions.csv` on the host.

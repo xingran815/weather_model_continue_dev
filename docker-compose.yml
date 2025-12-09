@@ -23,9 +23,19 @@ services:
     image:
   # Modeltraining
   Training:
-    depends_on:
-    image:    
+    image: weather-training:latest
+    # Uncomment and adjust if you run MLflow in a separate service
+    # environment:
+    #   - MLFLOW_TRACKING_URI=http://mlflow:8080
+    volumes:
+      - ./data:/app/data
+      - ./mlartifacts:/app/mlartifacts
   # Prediction
   Prediction:
+    image: weather-training:latest
     depends_on:
-    image:   
+      - Training
+    volumes:
+      - ./data:/app/data
+      - ./mlartifacts:/app/mlartifacts
+    command: ["python", "-u", "src/models/predict_model.py", "/app/data/processed/weatherAUS_10percent_preprocessed.csv", "/app/data/processed/weather_predictions.csv"]
