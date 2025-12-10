@@ -14,13 +14,13 @@ def training() -> mlflow.models.model.ModelInfo:
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
-    PROCESSED_PATH = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_20percent_preprocessed.csv")
+    PROCESSED_PATH = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_10percent_preprocessed.csv")
 
-    # initialize mlflow experiment
-    mlflow.set_tracking_uri("http://localhost:8080")
-    experiment = mlflow.get_experiment_by_name("MLflowTrackingWeatherAustralia_20percent")
+    # initialize mlflow experiment; allow override via env for Docker
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
+    experiment = mlflow.get_experiment_by_name("MLflowTrackingWeatherAustralia_10percent")
     if experiment is None:
-        experiment_id = mlflow.create_experiment("MLflowTrackingWeatherAustralia_20percent")
+        experiment_id = mlflow.create_experiment("MLflowTrackingWeatherAustralia_10percent")
     else:
         experiment_id = experiment.experiment_id
     mlflow.set_experiment(experiment_id=experiment_id)
@@ -91,7 +91,7 @@ def training() -> mlflow.models.model.ModelInfo:
                     best_name, best_acc, best_prec, best_rec, best_f1, best_model = name, acc, prec, rec, f1, model
 
 
-    with mlflow.start_run(run_name="weather_20percent_best_model") as run:
+    with mlflow.start_run(run_name="weather_10percent_best_model") as run:
         mlflow.log_params(params[best_name])
         # log best model metrics
         mlflow.log_metric("accuracy", best_acc)
@@ -118,5 +118,5 @@ def training() -> mlflow.models.model.ModelInfo:
 #####################################################
 
 
-# if __name__ == "__main__":
-#     training()
+if __name__ == "__main__":
+    training()

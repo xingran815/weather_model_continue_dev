@@ -1,5 +1,7 @@
 import os
 import mlflow
+import glob
+from pathlib import Path
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import joblib
 import pandas as pd
@@ -7,14 +9,41 @@ import pandas as pd
 
 ##################################################
 
-def predict(model_info: mlflow.models.model.ModelInfo,
-            input_path: str = "/home/ubuntu/oct25_bmlops_int_weather/data/processed/weatherAUS_20percent_preprocessed.csv", 
-            output_path: str = "/home/ubuntu/oct25_bmlops_int_weather/data/processed/weather_predictions.csv"):
+def predict(model_info: mlflow.models.model.ModelInfo | None = None,
+            input_path: str | None = None,
+            output_path: str | None = None):
+    print("Starting prediction...")
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
 
-    model = mlflow.sklearn.load_model(model_info.model_uri)
+    # defaults for paths
+    if input_path is None:
+        input_path = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_10percent_preprocessed.csv")
+    if output_path is None:
+        output_path = os.path.join(THIS_DIR, "../../data/processed/weather_predictions.csv")
+
+    # allow MLflow host override (Docker)
+    MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:8080")
+    mlflow.set_tracking_uri(MLFLOW_URI)
+
+    # Load model from local MLflow artifacts (latest model.pkl under mlartifacts)
+    artifacts_root = Path(THIS_DIR).resolve().joinpath("..", "..", "mlartifacts")
+    candidates = sorted(
+        artifacts_root.glob("**/artifacts/model.pkl"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    if not candidates:
+        raise ValueError(
+            "No MLflow model artifacts found under mlartifacts/**/artifacts/model.pkl. "
+            "Run training first."
+        )
+    model_path = candidates[0]
+    print(f"Loading local model from: {model_path}")
+    model = joblib.load(model_path)
+    print("Model loaded.")
+
     feature_names = joblib.load(FEATURES_PATH)
 
     df = pd.read_csv(input_path)
@@ -53,9 +82,10 @@ def predict(model_info: mlflow.models.model.ModelInfo,
     result = df.copy()
     result["RainTomorrow_pred"] = y_pred.astype(bool)
     result.to_csv(output_path, index=False)
+    print(f"Predictions saved to: {output_path}")
 
 ######################################################
 
 
-# if __name__ == "__main__":
-#     predict()
+if __name__ == "__main__":
+    predict()
