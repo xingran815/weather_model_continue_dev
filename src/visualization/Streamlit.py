@@ -10,10 +10,20 @@ from sqlalchemy import create_engine
 import pickle
 ###***************************************************************************************************************
 
-engine = create_engine(r'sqlite:///C:\Users\stefa\Documents\GitHub\oct25_bmlops_int_weather\data\raw\weather_australia.db')
+# read data from the sql container
+MYSQL_USER = "root"
+MYSQL_PASSWORD = "root"
+MYSQL_HOST = "weather_sql_container"  # Network? eg my_network
+MYSQL_PORT = 3306
+MYSQL_DB = "weather_db"
+TABLE_NAME = 'weather_data'
+engine = create_engine(
+         f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+         )
+# engine = create_engine(r'sqlite:///C:\Users\stefa\Documents\GitHub\oct25_bmlops_int_weather\data\raw\weather_australia.db')
 
 # SQL-Query oder Tabellennamen
-query = "SELECT * FROM weather_table"
+query = f"SELECT * FROM {TABLE_NAME}"
 
 # In DataFrame laden
 df = pd.read_sql(query, engine)
