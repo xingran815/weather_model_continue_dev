@@ -35,8 +35,27 @@ services:
       - my_network_by_compose
     ports:
       - "8000:8000"
+    volumes:
+      - shared-data:/app/data
     environment:
       MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
+  # Streamlit
+  Streamlit:
+    depends_on:
+      - model
+    image: weather_streamlit:latest
+    build:
+      context: .
+      dockerfile: docker_images/Dockerfile_streamlit
+    container_name: weather_streamlit_container
+    networks:
+      - my_network_by_compose
+    environment:
+      MODEL_URI: 'http://weather_model_container:8000'
+    volumes:
+      - shared-data:/app/data:ro
+    ports:
+      - "8501:8501"
 
   # testing model
   test_model:
@@ -88,10 +107,9 @@ services:
       - model
     
   
-  # Streamlit
-  # Streamlit:
-  #   depends_on:
-  #   image:
+volumes:
+  shared-data:
+
 networks:
   my_network_by_compose: 
     driver: bridge
