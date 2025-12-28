@@ -184,6 +184,7 @@ docker-compose start test_model
 ```
 
 - to open the Streamlit app, in your browser, go to http://localhost:8501/
+- to visit the MLflow server, in your browser, go to http://localhost:8080/
 
 
 <!-- Use the training image built from `docker/training/Dockerfile.training`.
