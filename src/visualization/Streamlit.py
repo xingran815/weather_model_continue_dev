@@ -124,7 +124,7 @@ if page == pages[1]:
             else:
                 st.error("Failed to create sub-dataset.")
 
-    if st.button("preprocess"):
+    if st.button("Preprocess"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:
             response = requests.get(f"{MODEL_API}/preprocessing")

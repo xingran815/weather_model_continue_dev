@@ -157,49 +157,34 @@ MLFLOW
 
 Dockerization 
 ---------------------------
-three docker containers: `mysql`, `MLFlow` and `model` services are added to `docker-compose.yml`.
+four docker containers: `mysql`, `MLFlow`, `Streamlit` and `model` services are added to `docker-compose.yml`.
 
-The mysql image is located at `mysql/Dockerfile`, the MLflow image is located at `docker_images/Dockerfile_mlflow`, while the model image is at `docker_images/Dockerfile_model`.
+The mysql image is located at `mysql/Dockerfile`, the MLflow image is located at `docker_images/Dockerfile_mlflow`, the Streamlit image is located at `docker_images/Dockerfile_streamlit` while the model image is at `docker_images/Dockerfile_model`.
 
 - `mysql` container hosts all the raw data
 - `MLFlow` container hosts the mlflow server
 - `model` container hosts the data substracting, data preprocessing, training, predicting, and FastAPI services
   - `test_model` container triggers the command to test the FastAPI service
-  - `make_dataset` container triggers the command to substract the data from the whole data base (hosted by `mysql`)
-  - `preprocess` container triggers the command to preprocesse the sub-dataset (created by `make_dataset`)
-  - `training` container triggers the command to train the model based on the preprocessed data (created by `preprocess`)
-  - `predict` container triggers the command to predict the value based on the model (trained by `training`)
+- `Streamlit` container hosts the Streamlit app
+  - `Make dataset` button triggers the command to substract the data from the whole data base (hosted by `mysql` container)
+  - `Preprocess` button triggers the command to preprocesse the sub-dataset (created by `make dataset`)
+  - `Train model` button triggers the command to train the model based on the preprocessed data (created by `preprocess`)
+  - `Predict` button triggers the command to predict the value based on the model (trained by `training`)
 
 
 - to start(or build if not exists) the docker compose:
 ```bash
-docker-compose up
+docker-compose up --build
 ```
+
 - to test the FastAPI:
 ```bash
 # in a new terminal
 docker-compose start test_model
 ```
-- to substract the data from the whole data base:
-```bash
-# in a new terminal
-docker-compose start make_dataset
-```
-- to preprocess the sub-dataset
-```bash
-# in a new terminal
-docker-compose start prepocess
-```
-- to train the model
-```bash
-# in a new terminal
-docker-compose start training
-```
-- to predict
-```bash
-# in a new terminal
-docker-compose start predict
-```
+
+- to open the Streamlit app, in your browser, go to http://localhost:8501/
+
 
 Use the training image built from `docker/training/Dockerfile.training`.
 
