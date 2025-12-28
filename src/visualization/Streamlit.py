@@ -3,11 +3,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from graphviz import Digraph
-
+import requests
 from sqlalchemy import create_engine
-import pickle
+import os
+
 ###***************************************************************************************************************
 
 # read data from the sql container
@@ -114,6 +114,25 @@ if page == pages[1]:
         sns.countplot(data=df[df['Location']==cat_choice], x='RainToday', hue='RainTomorrow', ax=ax)
         ax.set_title(f"Distribution of {cat_choice}")
         st.pyplot(fig)
+    
+    if st.button("Make dataset"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/make_dataset")
+            if response.status_code == 200:
+                st.success("Sub-dataset created!")
+            else:
+                st.error("Failed to create sub-dataset.")
+
+    if st.button("preprocess"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/preprocessing")
+            if response.status_code == 200:
+                st.success("Preprocessing done!")
+            else:
+                st.error("Failed to preprocess.")
+    
 
 ###**************************************************************************************************************
 ### Page 3: Automation
@@ -154,12 +173,30 @@ if page == pages[2]:
 if page == pages[3]:
     st.subheader("Modelling")
 
+    if st.button("Train model"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/training")
+            if response.status_code == 200:
+                st.success("Start to train Model!")
+            else:
+                st.error("Failed to train model.")
+
 
 ###**************************************************************************************************************
 ### Page 5: Prediction
 
 if page == pages[4]:
     st.subheader("Prediction")
+
+    if st.button("Predict"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/predict")
+            if response.status_code == 200:
+                st.success("Start to predict!")
+            else:
+                st.error("Failed to predict.")
 
 
 ###**************************************************************************************************************
