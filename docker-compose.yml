@@ -65,47 +65,6 @@ services:
     command: ["http://weather_model_container:8000"]
     depends_on:
       - model
-
-  # training
-  training:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/training"]
-    depends_on:
-      - model
-
-  # predict
-  predict:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/predict"]
-    depends_on:
-      - model
-
-  # create the sub-dataset
-  make_dataset:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/make_dataset"]
-    depends_on:
-      - model
-
-  # preprocessing the sub-dataset
-  preprocess:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/preprocessing"]
-    depends_on:
-      - model
-    
   
 volumes:
   shared-data:
