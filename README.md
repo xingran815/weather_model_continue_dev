@@ -186,7 +186,7 @@ docker-compose start test_model
 - to open the Streamlit app, in your browser, go to http://localhost:8501/
 
 
-Use the training image built from `docker/training/Dockerfile.training`.
+<!-- Use the training image built from `docker/training/Dockerfile.training`.
 
 1) Start MLflow on host (repo root, venv optional):
 ```
@@ -236,4 +236,4 @@ docker run --rm -it `
 This will:
 - Load the latest `model.pkl` from `mlartifacts/**/artifacts/model.pkl`
 - Evaluate on the input file
-- Save predictions to `data/processed/weather_predictions.csv` on the host.
+- Save predictions to `data/processed/weather_predictions.csv` on the host. -->
