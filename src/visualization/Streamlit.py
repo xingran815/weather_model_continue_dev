@@ -94,7 +94,6 @@ if page == pages[0]:
         st.pyplot(fig)
 
 
-
 ###**************************************************************************************************************
 ### Page 2: Automation
 
@@ -167,7 +166,8 @@ if page == pages[2]:
     ' dataset, this step leads to an enormous increase of the number of features\n' \
     '- Scaling of numerical features by vector normalization\n')
 
-    
+
+    st.write('Pressing the button "Make dataset" randomly chooses 20% of the original data to create a new dataset')
     if st.button("Make dataset"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:
@@ -177,6 +177,7 @@ if page == pages[2]:
             else:
                 st.error("Failed to create sub-dataset.")
 
+    st.write('Pressing the button "Preprocess" preprocesses the newest dataset')
     if st.button("Preprocess"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:
@@ -191,7 +192,15 @@ if page == pages[2]:
 
 if page == pages[3]:
     st.subheader("Modelling")
+    st.write('The modelling script does model 4 different modeltypes:\n' \
+    '- KNeighbors\n' \
+    '- Decision Tree\n' \
+    '- Random Forest\n' \
+    '- Gradient Boosting\n')
 
+    st.write('The modeling script then stores the best model with MLFlow.')
+
+    st.write('Pressing the button "Train model" starts the training process with the newest dataset')
     if st.button("Train model"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:
@@ -208,6 +217,9 @@ if page == pages[3]:
 if page == pages[4]:
     st.subheader("Prediction")
 
+    st.write('The prediction script uses the best model stored in the previous step with MLFlow.')
+
+    st.write('Pressing the button "Predict" starts the prediction process with the newest dataset')
     if st.button("Predict"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:
@@ -222,4 +234,16 @@ if page == pages[4]:
 ### Page 6: Conclusion
 
 if page == pages[5]:
-    st.subheader("Conclusion and Outlook")
+    st.subheader("Conclusion")
+
+    st.write('- The project does predict the weather of tomorrow by using changing data automaticly\n' \
+    '- The steps for the modelling and prediction are automized by crontab\n' \
+    '- For the application 4 Docker containers are used. Communicating between each other\n' \
+    '- Since the focus of the project is to use machine engineering tools, the model performances are not that good')
+
+    st.subheader("Outlook")
+
+    st.write('If we had more time for the project we would have tried:\n' \
+    '- 1\n' \
+    '- 2\n' \
+    '- 3')
