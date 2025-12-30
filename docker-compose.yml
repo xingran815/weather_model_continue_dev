@@ -35,8 +35,27 @@ services:
       - my_network_by_compose
     ports:
       - "8000:8000"
+    volumes:
+      - shared-data:/app/data
     environment:
       MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
+  # Streamlit
+  Streamlit:
+    depends_on:
+      - model
+    image: weather_streamlit:latest
+    build:
+      context: .
+      dockerfile: docker_images/Dockerfile_streamlit
+    container_name: weather_streamlit_container
+    networks:
+      - my_network_by_compose
+    environment:
+      MODEL_URI: 'http://weather_model_container:8000'
+    volumes:
+      - shared-data:/app/data:ro
+    ports:
+      - "8501:8501"
 
   # testing model
   test_model:
@@ -46,52 +65,10 @@ services:
     command: ["http://weather_model_container:8000"]
     depends_on:
       - model
-
-  # training
-  training:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/training"]
-    depends_on:
-      - model
-
-  # predict
-  predict:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/predict"]
-    depends_on:
-      - model
-
-  # create the sub-dataset
-  make_dataset:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/make_dataset"]
-    depends_on:
-      - model
-
-  # preprocessing the sub-dataset
-  preprocess:
-    image: datascientest/curl:latest
-    restart: "no"
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000/preprocessing"]
-    depends_on:
-      - model
-    
   
-  # Streamlit
-  # Streamlit:
-  #   depends_on:
-  #   image:
+volumes:
+  shared-data:
+
 networks:
   my_network_by_compose: 
     driver: bridge

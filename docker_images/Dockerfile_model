@@ -2,7 +2,8 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
-COPY src ./src
+COPY src/data ./src/data
+COPY src/models ./src/models
 COPY .git ./git
 RUN apt-get update && apt-get install -y curl git && \
   curl -LsSf https://astral.sh/uv/install.sh | sh && \
