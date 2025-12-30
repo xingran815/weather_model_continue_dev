@@ -97,7 +97,7 @@ if page == pages[0]:
 ###**************************************************************************************************************
 ### Page 2: Automation
 
-if page == pages[3]:
+if page == pages[1]:
     st.subheader("Project Structure")
 
     dot = Digraph()
