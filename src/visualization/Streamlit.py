@@ -20,7 +20,6 @@ TABLE_NAME = 'weather_data'
 engine = create_engine(
          f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
          )
-# engine = create_engine(r'sqlite:///C:\Users\stefa\Documents\GitHub\oct25_bmlops_int_weather\data\raw\weather_australia.db')
 
 # SQL-Query oder Tabellennamen
 query = f"SELECT * FROM {TABLE_NAME}"
@@ -34,7 +33,7 @@ df = pd.read_sql(query, engine)
 st.title("Rain in Australia :partly_sunny:")
 st.sidebar.title("Table of Contents")
 
-pages = ["Introduction", "Data-set :date:", "Automation", 
+pages = ["Introduction", "Automation", "Preprocessing :date:",
          "Modelling :chart_with_downwards_trend:", 
          'Prediction :chart_with_upwards_trend:', 'Conclusion:grey_exclamation:']
 page = st.sidebar.radio("Go to:", pages)
@@ -50,11 +49,6 @@ if page == pages[0]:
     st.write('The future weather is an important information for lots of areas of life e.g. agriculture or leisure activities')
     st.write('The aim of the project is to predict if it is raining tomorrow based on today weather.')
 
-
-###**************************************************************************************************************
-### Page 2: Dataset
-
-if page == pages[1]:
     st.subheader("Dataset")
     st.write('The given Dataset from Australia has', df.shape[1] ,'different columns and contains ', df.shape[0] ,' data entrys. ' \
     'The target column is RainTomorrow, which is a Boolean. ' )
@@ -84,28 +78,12 @@ if page == pages[1]:
     plt.title("Countplot RainTomorrow grouped by RainToday")
     st.pyplot(fig);
 
-    #group_hybrids=df.groupby(['RainToday']).agg({'RainTomorrow': ['value_counts']})
-    #st.write(group_hybrids)
-
-    st.subheader("Preprocessing Steps")
 
     if st.checkbox(" **Show missing values**"):
         st.write('Missing values in %')
         st.dataframe(np.round(df.isna().sum()/len(df)*100).sort_values(ascending=False),width=200)
 
-    st.write( 
-    '- delete features with over 10% of missing values \n' \
-    '- replace Nans for categorical variables with mode \n' \
-    '- replace Nans for numerical variables with median\n' \
-    '- delete Date column since it is not used for modelling (note: The date is deleted for making the model easier. ' \
-    'One should keep in mind that the seasons in fact have an influence on the weather. Therefore for'\
-    ' advanced modelling the date/month should be considered)\n' \
-    '- encode RainToday and RainTomorrow in binary variable \n' \
-    '- encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the'\
-    ' dataset, this step leads to an enormous increase of the number of features\n' \
-    '- Scaling of numerical features by vector normalization\n')
-
-
+    
     cats = df.Location.unique()
     cat_choice = st.selectbox("Select a Location:", cats)
 
@@ -114,31 +92,14 @@ if page == pages[1]:
         sns.countplot(data=df[df['Location']==cat_choice], x='RainToday', hue='RainTomorrow', ax=ax)
         ax.set_title(f"Distribution of {cat_choice}")
         st.pyplot(fig)
-    
-    if st.button("Make dataset"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
-            response = requests.get(f"{MODEL_API}/make_dataset")
-            if response.status_code == 200:
-                st.success("Sub-dataset created!")
-            else:
-                st.error("Failed to create sub-dataset.")
 
-    if st.button("Preprocess"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
-            response = requests.get(f"{MODEL_API}/preprocessing")
-            if response.status_code == 200:
-                st.success("Preprocessing done!")
-            else:
-                st.error("Failed to preprocess.")
-    
+
 
 ###**************************************************************************************************************
-### Page 3: Automation
+### Page 2: Automation
 
-if page == pages[2]:
-    st.subheader("Automation")
+if page == pages[3]:
+    st.subheader("Project Structure")
 
     dot = Digraph()
  
@@ -167,6 +128,64 @@ if page == pages[2]:
 # Diagramm in Streamlit anzeigen
     st.graphviz_chart(dot)
 
+
+    st.subheader("Dockerisation")
+    st.write( 
+    'four docker containers: mysql, MLFlow, Streamlit and model services \n' \
+    '- mysql container hosts all the raw data \n' \
+    '- MLFlow container hosts the mlflow server for storing and restoring the best models\n' \
+    '- model container hosts the data substracting, data preprocessing, training, predicting, and FastAPI services\n' \
+    '- Streamlit container hosts the Streamlit app\n'' \n' \
+    '- to start(or build if not exists) the docker compose use docker compose up and docker-compose.yml - file\n' \
+    '- to open the Streamlit app, in your browser, go to http://localhost:8501/\n'\
+    '- to visit the MLflow server, in your browser, go to http://localhost:8080/\n')
+
+    st.subheader("Automation")
+    st.write( 
+    'using crontab to automate process: \n' \
+    '- make dataset (chooses a random part of the original data to simulate changes in the data) \n' \
+    '- preprocess data\n' \
+    '- train model\n' \
+    '- predict with best model\n')
+
+###**************************************************************************************************************
+### Page 3: Preprocessing
+
+if page == pages[2]:
+    
+    st.subheader("Preprocessing Steps")
+
+    st.write( 
+    '- delete features with over 10% of missing values \n' \
+    '- replace Nans for categorical variables with mode \n' \
+    '- replace Nans for numerical variables with median\n' \
+    '- delete Date column since it is not used for modelling (note: The date is deleted for making the model easier. ' \
+    'One should keep in mind that the seasons in fact have an influence on the weather. Therefore for'\
+    ' advanced modelling the date/month should be considered)\n' \
+    '- encode RainToday and RainTomorrow in binary variable \n' \
+    '- encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the'\
+    ' dataset, this step leads to an enormous increase of the number of features\n' \
+    '- Scaling of numerical features by vector normalization\n')
+
+    
+    if st.button("Make dataset"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/make_dataset")
+            if response.status_code == 200:
+                st.success("Sub-dataset created!")
+            else:
+                st.error("Failed to create sub-dataset.")
+
+    if st.button("Preprocess"):
+        MODEL_API = os.getenv("MODEL_URI")
+        if MODEL_API is not None:
+            response = requests.get(f"{MODEL_API}/preprocessing")
+            if response.status_code == 200:
+                st.success("Preprocessing done!")
+            else:
+                st.error("Failed to preprocess.")
+    
 ###**************************************************************************************************************
 ### Page 4: Modelling
 
