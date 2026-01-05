@@ -229,7 +229,10 @@ if page == pages[3]:
                             
                             if status == "completed":
                                 st.success("Training completed successfully!")
+                                status_text.empty()
                                 training_status.empty()
+                                st.info("Training Logs:")
+                                st.code(message)
                                 break
                             elif status == "failed":
                                 st.error(f"Training failed: {message}")
@@ -280,7 +283,10 @@ if page == pages[4]:
                             
                             if status == "completed":
                                 st.success("Prediction completed successfully!")
+                                status_text.empty()
                                 predict_status.empty()
+                                st.info("Prediction Logs:")
+                                st.code(message)
                                 break
                             elif status == "failed":
                                 st.error(f"Prediction failed: {message}")
