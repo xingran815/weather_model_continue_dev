@@ -53,7 +53,7 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
         callback(20, "Splitting data...")
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=7, stratify=y
+        X, y, test_size=0.25, stratify=y
     )
 
     X_train_np = X_train.values
@@ -65,9 +65,9 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
     # Define baseline models
     params = {
         "KNeighbors": {"n_neighbors": 10},
-        "DecisionTree": {"max_depth": 10, "random_state": 42},
-        "RandomForest": {"n_estimators": 10, "max_depth": 10, "random_state": 42},
-        "GradientBoosting": {"random_state": 42},
+        "DecisionTree": {"max_depth": 10},
+        "RandomForest": {"n_estimators": 10, "max_depth": 10},
+        "GradientBoosting": {},
     }
     models = {
         "KNeighbors": KNeighborsClassifier(**params["KNeighbors"]),
@@ -112,7 +112,7 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
     if callback:
         callback(90, "Logging best model...")
 
-    with mlflow.start_run(run_name="weather_10percent_best_model") as run:
+    with mlflow.start_run(run_name="weather_20percent_best_model") as run:
         mlflow.log_params(params[best_name])
         # log best model metrics
         mlflow.log_metric("accuracy", best_acc)
