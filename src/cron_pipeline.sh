@@ -1,8 +1,13 @@
 #!/bin/bash
+LOG="/app/data/cron.log"  
 
-# This script runs the pipeline for weather data processing and model training every ten minutes.
+sleep 30
 
-python3 /data/make_dataset.py
-python3 preprocessing.py
-python3 train_model.py
-python3 predict_model.py
+echo "Start cron $(date)" >> "$LOG"
+
+# Trigger the dataset creation, preprocessing, and training via API
+curl -s http://localhost:8000/make_dataset >> "$LOG"
+curl -s http://localhost::8000/preprocessing >> "$LOG"
+curl -s http://localhost::8000/training >> "$LOG"
+
+echo "End cron $(date)" >> "$LOG"

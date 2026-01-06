@@ -57,6 +57,20 @@ services:
     ports:
       - "8501:8501"
 
+  cron:
+    depends_on: 
+      - model
+      - mysql
+    build:
+      context: .
+      dockerfile: docker_images/Dockerfile_cron
+    container_name: cron
+    networks:
+      - my_network_by_compose
+    volumes:
+      - shared-data:/app/data
+
+
   # testing model
   test_model:
     image: datascientest/curl:latest
