@@ -123,14 +123,13 @@ Project Organization
     │   │   └── weather_api.py   
     │   │
     │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │   │   └── Streamlit.py
-    │   │
+    │       └── Streamlit.py
+    │   
     ├── cron_pipeline.sh     <- cron pipeline to automate all steps
     └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+<p style="color:gray;"><small>The Project structure is based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 Step SQL)
 Task: store data in a local database (SQL)
