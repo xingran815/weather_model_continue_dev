@@ -4,7 +4,7 @@ Predicting Rain in Australia
 Project Aim
 ------------
 The aim of the project is to predict if it will rain tomorrow based on todays weather.
-The data set contains data from Australia is can be downloaded [here](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package)
+The data set contains data from Australia is can be downloaded [here](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package).
 
 Data Exploration
 ------------
@@ -88,15 +88,16 @@ Project Organization
     ├── data
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── logs               <- Logs from training and predicting
+    ├── docker               <- These two folders contain 
+    ├── docker_images        <- the docker files
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
+    │
+    ├── mysql               <- database
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creator's initials, and a short `-` delimited description, e.g.
     │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
     │   └── figures        <- Generated graphics and figures to be used in reporting
