@@ -17,44 +17,31 @@ The target column is RainTomorrow, which is a Boolean. The target is unevenly di
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
-<div style="overflow:auto; max-height:30px; font-size:12px;">
-
-<table>
-  <thead>
-    <tr>
-      <th>Missing values in %</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>Date</td><td>0.000000</td></tr>
-    <tr><td>Location</td><td>0.000000</td></tr>
-    <tr><td>MinTemp</td><td>1.020899</td></tr>
-    <tr><td>MaxTemp</td><td>0.866905</td></tr>
-    <tr><td>Rainfall</td><td>2.241853</td></tr>
-    <tr><td>Evaporation</td><td>43.166506</td></tr>
-    <tr><td>Sunshine</td><td>48.009762</td></tr>
-    <tr><td>WindGustDir</td><td>7.098859</td></tr>
-    <tr><td>WindGustSpeed</td><td>7.055548</td></tr>
-    <tr><td>WindDir9am</td><td>7.263853</td></tr>
-    <tr><td>WindDir3pm</td><td>2.906641</td></tr>
-    <tr><td>WindSpeed9am</td><td>1.214767</td></tr>
-    <tr><td>WindSpeed3pm</td><td>2.105046</td></tr>
-    <tr><td>Humidity9am</td><td>1.824557</td></tr>
-    <tr><td>Humidity3pm</td><td>3.098446</td></tr>
-    <tr><td>Pressure9am</td><td>10.356799</td></tr>
-    <tr><td>Pressure3pm</td><td>10.331363</td></tr>
-    <tr><td>Cloud9am</td><td>38.421559</td></tr>
-    <tr><td>Cloud3pm</td><td>40.807095</td></tr>
-    <tr><td>Temp9am</td><td>1.214767</td></tr>
-    <tr><td>Temp3pm</td><td>2.481094</td></tr>
-    <tr><td>RainToday</td><td>2.241853</td></tr>
-    <tr><td>RainTomorrow</td><td>2.245978</td></tr>
-  </tbody>
-</table>
-
-</div>
-
+|Missing values in %| |
+|----------|----------|
+|Date         |     0.000000 |
+|Location     |     0.000000 |
+|MinTemp      |     1.020899 |
+|MaxTemp      |     0.866905 |
+|Rainfall     |     2.241853 |
+|Evaporation  |    43.166506 |
+|Sunshine     |    48.009762 |
+|WindGustDir  |     7.098859 |
+|WindGustSpeed|     7.055548 |
+|WindDir9am   |     7.263853 |
+|WindDir3pm   |     2.906641 |
+|WindSpeed9am |     1.214767 |
+|WindSpeed3pm |     2.105046 |
+|Humidity9am  |     1.824557 |
+|Humidity3pm  |     3.098446 |
+|Pressure9am  |    10.356799 |
+|Pressure3pm  |    10.331363 |
+|Cloud9am     |    38.421559 |
+|Cloud3pm     |    40.807095 |
+|Temp9am      |     1.214767 |
+|Temp3pm      |     2.481094 |
+|RainToday    |     2.241853 |
+|RainTomorrow |     2.245978 |
 
 How  to proceed with missing values: 
 - delete entrys with over 10% of missing values
