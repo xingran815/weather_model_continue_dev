@@ -49,12 +49,11 @@ How  to proceed with missing values:
 First Observation
 ------------
 If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, it will most likely also not rain tomorrow.
-|                |   ('RainTomorrow', 'value_counts') |
-|:---------------|-----------------------------------:|
-| ('No', 'No')   |                              92728 |
-| ('No', 'Yes')  |                              16604 |
-| ('Yes', 'No')  |                              16858 |
-| ('Yes', 'Yes') |                              14597 |      
+
+| RainToday | No    | Yes   |
+|-----------|-------|-------|
+| No        | 92728 | 16604 |
+| Yes       | 16858 | 14597 |
 
 Preprocessing data
 ------------
