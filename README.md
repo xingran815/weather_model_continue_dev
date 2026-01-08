@@ -8,7 +8,10 @@ The aim of the project is to predict if it will rain tomorrow based on todays we
 Data Exploration
 ------------
 The given Dataset from Australia has 23 different columns and contains 145460 data entrys.
+
 The target column is RainTomorrow, which is a Boolean. The target is unevenly distibuted (fewer rainy days).
+![Target](reports\figures\RainTomorrow.png)
+
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
