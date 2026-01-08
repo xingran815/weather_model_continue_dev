@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 
 ###################################################
+# define training
 def training(FILE, callback=None) -> mlflow.models.model.ModelInfo: 
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
@@ -52,6 +53,7 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
     if callback:
         callback(20, "Splitting data...")
 
+    # Splot dataset into test aund train set
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=7, stratify=y
     )
@@ -112,7 +114,7 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
     if callback:
         callback(90, "Logging best model...")
 
-    with mlflow.start_run(run_name="weather_10percent_best_model") as run:
+    with mlflow.start_run(run_name="weather_20percent_best_model") as run:
         mlflow.log_params(params[best_name])
         # log best model metrics
         mlflow.log_metric("accuracy", best_acc)
@@ -141,5 +143,3 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
 #####################################################
 
 
-# if __name__ == "__main__":
-#     training()
