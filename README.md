@@ -59,12 +59,12 @@ Preprocessing data
 ------------
 - How  to proceed with missing values: 
     - delete entrys with over 10% of missing values
-    - replace Nans for cateforical variables with mode
+    - replace Nans for categorical variables with mode
     - replace Nans for numerical variables with median
-- delete Date column since it is not used for modelling (note from Reviewer: Not sure yet about this, at least it is probably reduntant since it is highly correlated with the other values.)
-- encode RainToday and RainTomorrow in binary variable (0/1) (note from Reviewer: Or as Boolean (True/False), maybe we will choose a binary decision tree)
-- encode location and variables for wind direction with get_dummies
-- Should we include Scaling? (note from Reviewer, most likely yes, I would propose a vector normalization or Min/Max normalization
+- delete Date column since it is not used for modelling (note: The date is deleted for making the model easier. One should keep in mind that the   seasons in fact have an influence on the weather. Therefore foradvanced modelling the date/month should be considered)
+- encode RainToday and RainTomorrow in binary variable
+- encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the dataset, this step leads to an enormous increase of the number of features)
+- Scaling of numerical features by vector normalization
 
 
 Project Organization
@@ -99,7 +99,7 @@ Project Organization
     │   │   └── preprocessing.py
     │   │
     │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   │   └── mlflow_server.sh
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
     │   │   │                 predictions
@@ -108,9 +108,10 @@ Project Organization
     │   │   └── weather_api.py   
     │   │
     │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │   │   └── Streamlit.py.py
-    │   ├── config         <- Describe the parameters used in train_model.py and predict_model.py
-    │   └── cron_pipeline.sh         
+    │   │   └── Streamlit.py
+    │   │
+    │   ├── cron_pipeline.sh     <- cron pipeline to automate all steps
+    │   └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
 

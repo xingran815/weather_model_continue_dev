@@ -169,7 +169,7 @@ if page == pages[2]:
     ' advanced modelling the date/month should be considered)\n' \
     '- encode RainToday and RainTomorrow in binary variable \n' \
     '- encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the'\
-    ' dataset, this step leads to an enormous increase of the number of features\n' \
+    ' dataset, this step leads to an enormous increase of the number of features)\n' \
     '- Scaling of numerical features by vector normalization\n')
 
 # Trigger the make dataset script to create new sample set
