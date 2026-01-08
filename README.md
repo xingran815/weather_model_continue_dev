@@ -12,30 +12,31 @@ The target column is RainTomorrow, which is a Boolean. The target is unevenly di
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
-Missing values in %
-Date              0.000000
-Location          0.000000
-MinTemp           1.020899
-MaxTemp           0.866905
-Rainfall          2.241853
-Evaporation      43.166506
-Sunshine         48.009762
-WindGustDir       7.098859
-WindGustSpeed     7.055548
-WindDir9am        7.263853
-WindDir3pm        2.906641
-WindSpeed9am      1.214767
-WindSpeed3pm      2.105046
-Humidity9am       1.824557
-Humidity3pm       3.098446
-Pressure9am      10.356799
-Pressure3pm      10.331363
-Cloud9am         38.421559
-Cloud3pm         40.807095
-Temp9am           1.214767
-Temp3pm           2.481094
-RainToday         2.241853
-RainTomorrow      2.245978
+|Missing values in %|-----------|
+|----------|----------|
+|Date         |     0.000000 |
+|Location     |     0.000000 |
+|MinTemp      |     1.020899 |
+|MaxTemp      |     0.866905 |
+|Rainfall     |     2.241853 |
+|Evaporation  |    43.166506 |
+|Sunshine     |    48.009762 |
+|WindGustDir  |     7.098859 |
+|WindGustSpeed|     7.055548 |
+|WindDir9am   |     7.263853 |
+|WindDir3pm   |     2.906641 |
+|WindSpeed9am |     1.214767 |
+|WindSpeed3pm |     2.105046 |
+|Humidity9am  |     1.824557 |
+|Humidity3pm  |     3.098446 |
+|Pressure9am  |    10.356799 |
+|Pressure3pm  |    10.331363 |
+|Cloud9am     |    38.421559 |
+|Cloud3pm     |    40.807095 |
+|Temp9am      |     1.214767 |
+|Temp3pm      |     2.481094 |
+|RainToday    |     2.241853 |
+|RainTomorrow |     2.245978 |
 
 How  to proceed with missing values: 
 - delete entrys with over 10% of missing values
