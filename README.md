@@ -10,6 +10,7 @@ Data Exploration
 The given Dataset from Australia has 23 different columns and contains 145460 data entrys.
 
 The target column is RainTomorrow, which is a Boolean. The target is unevenly distibuted (fewer rainy days).
+<img src="reports/figures/RainTomorrow.png" alt="Rain Tomorrow" width="400">
 ![(reports/figures/RainTomorrow.png)](reports/figures/RainTomorrow.png)
 
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
