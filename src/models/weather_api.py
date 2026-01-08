@@ -15,6 +15,7 @@ responses = {
     403: {"description": "Not enough privileges"},
 }
 
+# Create FastAPI
 api = FastAPI(
     title='API for weather forcasting',
     description="""
@@ -40,7 +41,7 @@ FILE_DATASET = None
 FILE_PREPROCESSING = None
 DATE = None
 
-
+# define functions used
 def update_training_progress(progress: int, message: str):
     training_status.progress = progress
     training_status.message = message
@@ -82,21 +83,21 @@ def wrapper_predict(model_info: mlflow.models.model.ModelInfo):
 def get_index():
     return {'greeting': 'Welcome to weather forcasting app!'}
 
-
+# API make dataset
 @api.get('/make_dataset', name='make sub-dataset from the raw data', responses=responses)
 def get_make_dataset():
     global FILE_DATASET, DATE
     FILE_DATASET, DATE = make_dataset()
     return {'status': 'sub-dataset is created.'}
 
-
+# API Preprocessing
 @api.get('/preprocessing', name='preprocess the data', responses=responses)
 def get_preprocessing():
     global FILE_PREPROCESSING
     FILE_PREPROCESSING = preprocessing(FILE_DATASET, DATE)
     return {'status': 'data is preprocessed.'}
 
-
+# API prediction
 @api.get('/predict', name='Predict The Weather', responses=responses)
 def get_predict(background_tasks: BackgroundTasks):
     try:
@@ -120,7 +121,7 @@ def get_predict(background_tasks: BackgroundTasks):
     except Exception as e:
         return {'error': str(e)}
 
-
+#API Training
 @api.get('/training', name='Train The Model with existing data',
          responses=responses)
 def get_training(background_tasks: BackgroundTasks):
@@ -137,7 +138,7 @@ def get_training(background_tasks: BackgroundTasks):
     except Exception as e:
         return {'error': str(e)}
 
-
+# get status of training and prediction
 @api.get('/training-status', name='Get Training Status', responses=responses)
 def get_training_status():
     return {
