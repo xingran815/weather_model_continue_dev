@@ -83,6 +83,7 @@ The prediction script uses the best model stored in the previous step with MLFlo
 
 Project Organization
 ------------
+<p style="color:gray;"><small>The Project structure is based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
     ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
@@ -129,7 +130,7 @@ Project Organization
     └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
-<p style="color:gray;"><small>The Project structure is based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
 
 Step SQL)
 Task: store data in a local database (SQL)
