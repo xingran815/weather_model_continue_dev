@@ -17,6 +17,7 @@ def predict(model_info: mlflow.models.model.ModelInfo,
     log_stream = StringIO()
     logger = logging.getLogger("predict_model")
     logger.setLevel(logging.INFO)
+
     # Clear existing handlers to avoid duplicates if called multiple times
     logger.handlers = []
     handler = logging.StreamHandler(log_stream)
@@ -28,6 +29,7 @@ def predict(model_info: mlflow.models.model.ModelInfo,
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
+
     # defaults for paths
     if input_path is None:
         input_path = os.path.join(THIS_DIR, "../../data/processed/weatherAUS_20percent_preprocessed.csv")
@@ -58,6 +60,7 @@ def predict(model_info: mlflow.models.model.ModelInfo,
 
     if callback:
         callback(50, "Predicting...")
+
     # Predict
     y_pred = model.predict(X)
 
@@ -65,6 +68,7 @@ def predict(model_info: mlflow.models.model.ModelInfo,
 
     if callback:
         callback(80, "Evaluating...")
+
     # If labals exist, print metrics
     if y_true is not None:
         acc = accuracy_score(y_true, y_pred)
@@ -93,6 +97,3 @@ def predict(model_info: mlflow.models.model.ModelInfo,
 
 ######################################################
 
-
-# if __name__ == "__main__":
-#     predict()
