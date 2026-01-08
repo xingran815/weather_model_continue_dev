@@ -4,6 +4,7 @@ Predicting Rain in Australia
 Project Aim
 ------------
 The aim of the project is to predict if it will rain tomorrow based on todays weather.
+The data set contains data from Australia is can be downloaded [here](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package)
 
 Data Exploration
 ------------
@@ -70,10 +71,10 @@ Preprocessing data
 Modelling and Prediction
 ------------
 The modelling script does model 4 different modeltypes:
-    - KNeighbors
-    - Decision Tree
-    - Random Forest
-    - Gradient Boosting
+  - KNeighbors
+  - Decision Tree
+  - Random Forest
+  - Gradient Boosting
 
 The modeling script then stores the best model with MLFlow.
 The prediction script uses the best model stored in the previous step with MLFlow.
