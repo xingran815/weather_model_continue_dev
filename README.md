@@ -12,7 +12,7 @@ The target column is RainTomorrow, which is a Boolean. The target is unevenly di
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
-|Missing values in %|-----------|
+|Missing values in %| |
 |----------|----------|
 |Date         |     0.000000 |
 |Location     |     0.000000 |
