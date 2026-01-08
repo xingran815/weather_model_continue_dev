@@ -5,37 +5,43 @@ Project Aim
 ------------
 The aim of the project is to predict if it will rain tomorrow based on todays weather.
 
+The data set contains data from Australia is can be downloaded [here](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package).
+
 Data Exploration
 ------------
 The given Dataset from Australia has 23 different columns and contains 145460 data entrys.
+
 The target column is RainTomorrow, which is a Boolean. The target is unevenly distibuted (fewer rainy days).
+<img src="reports/figures/RainTomorrow.png" alt="Rain Tomorrow" width="400">
+
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
 
-Missing values in %
-Date              0.000000
-Location          0.000000
-MinTemp           1.020899
-MaxTemp           0.866905
-Rainfall          2.241853
-Evaporation      43.166506
-Sunshine         48.009762
-WindGustDir       7.098859
-WindGustSpeed     7.055548
-WindDir9am        7.263853
-WindDir3pm        2.906641
-WindSpeed9am      1.214767
-WindSpeed3pm      2.105046
-Humidity9am       1.824557
-Humidity3pm       3.098446
-Pressure9am      10.356799
-Pressure3pm      10.331363
-Cloud9am         38.421559
-Cloud3pm         40.807095
-Temp9am           1.214767
-Temp3pm           2.481094
-RainToday         2.241853
-RainTomorrow      2.245978
+|Missing values in %| |
+|----------|----------|
+|Date         |     0.000000 |
+|Location     |     0.000000 |
+|MinTemp      |     1.020899 |
+|MaxTemp      |     0.866905 |
+|Rainfall     |     2.241853 |
+|Evaporation  |    43.166506 |
+|Sunshine     |    48.009762 |
+|WindGustDir  |     7.098859 |
+|WindGustSpeed|     7.055548 |
+|WindDir9am   |     7.263853 |
+|WindDir3pm   |     2.906641 |
+|WindSpeed9am |     1.214767 |
+|WindSpeed3pm |     2.105046 |
+|Humidity9am  |     1.824557 |
+|Humidity3pm  |     3.098446 |
+|Pressure9am  |    10.356799 |
+|Pressure3pm  |    10.331363 |
+|Cloud9am     |    38.421559 |
+|Cloud3pm     |    40.807095 |
+|Temp9am      |     1.214767 |
+|Temp3pm      |     2.481094 |
+|RainToday    |     2.241853 |
+|RainTomorrow |     2.245978 |
 
 How  to proceed with missing values: 
 - delete entrys with over 10% of missing values
@@ -46,35 +52,54 @@ First Observation
 ------------
 If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, it will most likely also not rain tomorrow.
 
+**RainTomorrow**
+| RainToday | No    | Yes   |
+|-----------|-------|-------|
+| No        | 92728 | 16604 |
+| Yes       | 16858 | 14597 |
+
 Preprocessing data
 ------------
 - How  to proceed with missing values: 
     - delete entrys with over 10% of missing values
-    - replace Nans for cateforical variables with mode
+    - replace Nans for categorical variables with mode
     - replace Nans for numerical variables with median
-- delete Date column since it is not used for modelling (note from Reviewer: Not sure yet about this, at least it is probably reduntant since it is highly correlated with the other values.)
-- encode RainToday and RainTomorrow in binary variable (0/1) (note from Reviewer: Or as Boolean (True/False), maybe we will choose a binary decision tree)
-- encode location and variables for wind direction with get_dummies
-- Should we include Scaling? (note from Reviewer, most likely yes, I would propose a vector normalization or Min/Max normalization
+- delete Date column since it is not used for modelling (note: The date is deleted for making the model easier. One should keep in mind that the   seasons in fact have an influence on the weather. Therefore foradvanced modelling the date/month should be considered)
+- encode RainToday and RainTomorrow in binary variable
+- encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the dataset, this step leads to an enormous increase of the number of features)
+- Scaling of numerical features by vector normalization
+
+Modelling and Prediction
+------------
+The modelling script does model 4 different modeltypes:
+  - KNeighbors
+  - Decision Tree
+  - Random Forest
+  - Gradient Boosting
+
+The modeling script then stores the best model with MLFlow.
+The prediction script uses the best model stored in the previous step with MLFlow.
 
 
 Project Organization
 ------------
+<p style="color:gray;"><small>The Project structure is based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
     ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── logs               <- Logs from training and predicting
+    ├── docker               <- These two folders contain 
+    ├── docker_images        <- the docker files
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
+    │
+    ├── mysql               <- database
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creator's initials, and a short `-` delimited description, e.g.
     │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
     │   └── figures        <- Generated graphics and figures to be used in reporting
@@ -90,7 +115,7 @@ Project Organization
     │   │   └── preprocessing.py
     │   │
     │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   │   └── mlflow_server.sh
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
     │   │   │                 predictions
@@ -99,13 +124,13 @@ Project Organization
     │   │   └── weather_api.py   
     │   │
     │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │   │   └── Streamlit.py.py
-    │   ├── config         <- Describe the parameters used in train_model.py and predict_model.py
-    │   └── cron_pipeline.sh         
+    │       └── Streamlit.py
+    │   
+    ├── cron_pipeline.sh     <- cron pipeline to automate all steps
+    └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 Step SQL)
 Task: store data in a local database (SQL)
