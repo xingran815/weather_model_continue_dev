@@ -67,6 +67,17 @@ Preprocessing data
 - encode location and variables for wind direction with get_dummies (note: Since there are a lot of Locations in the dataset, this step leads to an enormous increase of the number of features)
 - Scaling of numerical features by vector normalization
 
+Modelling and Prediction
+------------
+The modelling script does model 4 different modeltypes:
+    - KNeighbors
+    - Decision Tree
+    - Random Forest
+    - Gradient Boosting
+
+The modeling script then stores the best model with MLFlow.
+The prediction script uses the best model stored in the previous step with MLFlow.
+
 
 Project Organization
 ------------
