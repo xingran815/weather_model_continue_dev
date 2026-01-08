@@ -11,7 +11,6 @@ The given Dataset from Australia has 23 different columns and contains 145460 da
 
 The target column is RainTomorrow, which is a Boolean. The target is unevenly distibuted (fewer rainy days).
 <img src="reports/figures/RainTomorrow.png" alt="Rain Tomorrow" width="400">
-![(reports/figures/RainTomorrow.png)](reports/figures/RainTomorrow.png)
 
 The Data for today contains information about the date, the city, temperature, humidity, pressure, wind, clouds, sunshine and rain. Most variables are numeric. Categorical values are the location , wind related values (e.g. wind direction). Rains today is a boolean.
 The dataset contains measurements from 49 citys/places.
@@ -50,6 +49,7 @@ How  to proceed with missing values:
 First Observation
 ------------
 If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, it will most likely also not rain tomorrow.
+"|   ('RainTomorrow', 'value_counts') |\n|-----------------------------------:|\n|                              92728 |\n|                              16604 |\n|                              16858 |\n|                              14597 |"
 
 Preprocessing data
 ------------
