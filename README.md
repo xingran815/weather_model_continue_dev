@@ -50,6 +50,7 @@ First Observation
 ------------
 If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, it will most likely also not rain tomorrow.
 
+**RainTomorrow**
 | RainToday | No    | Yes   |
 |-----------|-------|-------|
 | No        | 92728 | 16604 |
