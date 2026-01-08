@@ -4,6 +4,7 @@ Predicting Rain in Australia
 Project Aim
 ------------
 The aim of the project is to predict if it will rain tomorrow based on todays weather.
+
 The data set contains data from Australia is can be downloaded [here](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package).
 
 Data Exploration
@@ -124,8 +125,8 @@ Project Organization
     │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations
     │   │   └── Streamlit.py
     │   │
-    │   ├── cron_pipeline.sh     <- cron pipeline to automate all steps
-    │   └── docker-compose.yml   <- docker-compose file to run all Docker containers   
+    ├── cron_pipeline.sh     <- cron pipeline to automate all steps
+    └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
 
