@@ -22,10 +22,10 @@ engine = create_engine(
          f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
          )
 
-# SQL-Query oder Tabellennamen
+# SQL-Query 
 query = f"SELECT * FROM {TABLE_NAME}"
 
-# In DataFrame laden
+# Load in Dataframe
 df = pd.read_sql(query, engine)
 
 
@@ -63,6 +63,7 @@ if page == pages[0]:
     st.subheader("First observations")
     st.write('The target is unevenly distibuted (fewer rainy days). ')
 
+# Plot target
     fig, ax = plt.subplots()
     sns.countplot(data=df, x='RainTomorrow')
     plt.title('Rain Tomorrow')
@@ -73,18 +74,19 @@ if page == pages[0]:
     st.write('If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, ' \
     'it will most likely also not rain tomorrow.')
 
-
+# Plot Target in correlation with rain today
     fig, ax = plt.subplots()
     sns.countplot(data=df, x='RainToday', hue='RainTomorrow')
     plt.title("Countplot RainTomorrow grouped by RainToday")
     st.pyplot(fig);
 
-
+# Show missing values in % by klicking the checkbox
     if st.checkbox(" **Show missing values**"):
         st.write('Missing values in %')
         st.dataframe(np.round(df.isna().sum()/len(df)*100).sort_values(ascending=False),width=200)
 
-    
+
+# Plot target only for one location    
     cats = df.Location.unique()
     cat_choice = st.selectbox("Select a Location:", cats)
 
@@ -101,9 +103,10 @@ if page == pages[0]:
 if page == pages[1]:
     st.subheader("Project Structure")
 
+# Create Diagramm for project structure
     dot = Digraph()
  
-# Knoten hinzufügen
+# adding knots
 
     dot.node("A","Database (SQL)",style="filled",fillcolor="lightblue", color='blue')
     dot.node("B", "Preprocessing",style="filled",fillcolor="lightblue", color='blue')
@@ -112,7 +115,7 @@ if page == pages[1]:
     dot.node("F", "API",style="filled",fillcolor="lightblue", color='blue')
     dot.node("G", "Streamlit",style="filled",fillcolor="lightblue", color='blue')
 
-# Kanten hinzufügen (Verbindungen)
+# adding arrows
     dot.edge("A", "B", label="")
     dot.edge("B", "A", label="")
     dot.edge("D", "A", label="")
@@ -125,10 +128,10 @@ if page == pages[1]:
     dot.edge("F", "G", label="")
     dot.edge("A", "G", label="")
 
-# Diagramm in Streamlit anzeigen
+# show diagram in Streamlit
     st.graphviz_chart(dot)
 
-
+# Add Part about Dockerisation
     st.subheader("Dockerisation")
     st.write( 
     'four docker containers: mysql, MLFlow, Streamlit and model services \n' \
@@ -140,6 +143,7 @@ if page == pages[1]:
     '- to open the Streamlit app, in your browser, go to http://localhost:8501/\n'\
     '- to visit the MLflow server, in your browser, go to http://localhost:8080/\n')
 
+# Add Part about Automation with crontab
     st.subheader("Automation")
     st.write( 
     'using crontab to automate process: \n' \
@@ -153,6 +157,7 @@ if page == pages[1]:
 
 if page == pages[2]:
     
+# Add Preprocessing steps  
     st.subheader("Preprocessing Steps")
 
     st.write( 
@@ -167,7 +172,7 @@ if page == pages[2]:
     ' dataset, this step leads to an enormous increase of the number of features\n' \
     '- Scaling of numerical features by vector normalization\n')
 
-
+# Trigger the make dataset script to create new sample set
     st.write('Pressing the button "Make dataset" randomly chooses 20% of the original data to create a new dataset')
     if st.button("Make dataset"):
         MODEL_API = os.getenv("MODEL_URI")
@@ -178,6 +183,7 @@ if page == pages[2]:
             else:
                 st.error("Failed to create sub-dataset.")
 
+# Preprocess the last created sample set
     st.write('Pressing the button "Preprocess" preprocesses the newest dataset')
     if st.button("Preprocess"):
         MODEL_API = os.getenv("MODEL_URI")
@@ -192,6 +198,8 @@ if page == pages[2]:
 ### Page 4: Modelling
 
 if page == pages[3]:
+
+# Text about Modelling
     st.subheader("Modelling")
     st.write('The modelling script does model 4 different modeltypes:\n' \
     '- KNeighbors\n' \
@@ -201,6 +209,7 @@ if page == pages[3]:
 
     st.write('The modeling script then stores the best model with MLFlow.')
 
+# Start modelling with button
     st.write('Pressing the button "Train model" starts the training process with the newest dataset')
     if st.button("Train model"):
         MODEL_API = os.getenv("MODEL_URI")
@@ -253,10 +262,13 @@ if page == pages[3]:
 ### Page 5: Prediction
 
 if page == pages[4]:
+
+# Text about Prediction
     st.subheader("Prediction")
 
     st.write('The prediction script uses the best model stored in the previous step with MLFlow.')
 
+# Start Prediction with button
     st.write('Pressing the button "Predict" starts the prediction process with the newest dataset')
     if st.button("Predict"):
         MODEL_API = os.getenv("MODEL_URI")
@@ -323,5 +335,6 @@ if page == pages[5]:
     '- Advantages of DagsHub: better tracking of data changes over time, necessary for frequently updated data\n' \
     '- 3) Create one docker container for each single task (e.g. one for preprocessing, one for training etc.)\n' \
     '- Advantages: better scalability and maintainability of the project\n' \
-    '- 4) Adding more functioniality to the streamlit app (e.g. visualizations of model performances, feature selection in the preprocessing)')
+    '- 4) Adding a Securing for the API for example with password\n' \
+    '- 5) Adding more functioniality to the streamlit app (e.g. visualizations of model performances, feature selection in the preprocessing)')
 
