@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 
-
+# define vector normalization
 def vector_normalize(X):
     ''' Normalize the data using vector normalization
     '''
@@ -14,7 +14,7 @@ def vector_normalize(X):
     X_normalized = X_np /norms
     return pd.DataFrame(X_normalized, columns=X.columns)
 
-
+# define preprocesing
 def preprocessing(INPUT_FILE, DATE) -> str:
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     df= pd.read_csv(INPUT_FILE) 
