@@ -55,7 +55,7 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
 
     # Splot dataset into test aund train set
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=7, stratify=y
+        X, y, test_size=0.25, stratify=y
     )
 
     X_train_np = X_train.values
@@ -67,9 +67,9 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
     # Define baseline models
     params = {
         "KNeighbors": {"n_neighbors": 10},
-        "DecisionTree": {"max_depth": 10, "random_state": 42},
-        "RandomForest": {"n_estimators": 10, "max_depth": 10, "random_state": 42},
-        "GradientBoosting": {"random_state": 42},
+        "DecisionTree": {"max_depth": 10},
+        "RandomForest": {"n_estimators": 10, "max_depth": 10},
+        "GradientBoosting": {},
     }
     models = {
         "KNeighbors": KNeighborsClassifier(**params["KNeighbors"]),
