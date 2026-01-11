@@ -130,7 +130,13 @@ Project Organization
     └── docker-compose.yml   <- docker-compose file to run all Docker containers   
 
 --------
-
+Step cron)
+    Seperate Docker container to automate the process: 
+    - calls cron_pipeline.sh every 10 minutes 
+    - the script calls the FastAPI endpoints in the model container in the following order:
+        - make dataset (chooses a random part of the original data to simulate changes in the data) 
+        - preprocess data
+        - train model\n'
 
 Step SQL)
 Task: store data in a local database (SQL)

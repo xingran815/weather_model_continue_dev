@@ -109,24 +109,22 @@ if page == pages[1]:
 # adding knots
 
     dot.node("A","Database (SQL)",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("B", "Preprocessing",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("D", "Modell Training and Prediction",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("E", "MLFlow",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("F", "API",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("G", "Streamlit",style="filled",fillcolor="lightblue", color='blue')
+    dot.node("B", "Cron",style="filled",fillcolor="lightblue", color='blue')
+    dot.node("C", "Model and API",style="filled",fillcolor="lightblue", color='blue')
+    dot.node("D", "MLFlow",style="filled",fillcolor="lightblue", color='blue')
+    dot.node("E", "Streamlit",style="filled",fillcolor="lightblue", color='blue')
 
 # adding arrows
-    dot.edge("A", "B", label="")
-    dot.edge("B", "A", label="")
-    dot.edge("D", "A", label="")
-    dot.edge("A", "D", label="")
-    dot.edge("E", "D", label="")
+    dot.edge("A", "C", label="")
+    dot.edge("B", "C", label="")
+    dot.edge("B", "D", label="")
+    dot.edge("C", "B", label="")
+    dot.edge("C", "D", label="")
+    dot.edge("C", "E", label="")
+    dot.edge("D", "C", label="")
     dot.edge("D", "E", label="")
-    dot.edge("F", "D", label="")
-    dot.edge("D", "F", label="")
-    dot.edge("G", "F", label="")
-    dot.edge("F", "G", label="")
-    dot.edge("A", "G", label="")
+    dot.edge("E", "C", label="")
+    dot.edge("E", "D", label="")
 
 # show diagram in Streamlit
     st.graphviz_chart(dot)
@@ -134,8 +132,9 @@ if page == pages[1]:
 # Add Part about Dockerisation
     st.subheader("Dockerisation")
     st.write( 
-    'four docker containers: mysql, MLFlow, Streamlit and model services \n' \
-    '- mysql container hosts all the raw data \n' \
+    'five docker containers: cron, MySQL, MLFlow, Streamlit and model services \n' \
+    '- cron container for automating the process \n' \
+    '- MySQL container hosts all the raw data \n' \
     '- MLFlow container hosts the mlflow server for storing and restoring the best models\n' \
     '- model container hosts the data substracting, data preprocessing, training, predicting, and FastAPI services\n' \
     '- Streamlit container hosts the Streamlit app\n'' \n' \
@@ -146,11 +145,23 @@ if page == pages[1]:
 # Add Part about Automation with crontab
     st.subheader("Automation")
     st.write( 
-    'using crontab to automate process: \n' \
-    '- make dataset (chooses a random part of the original data to simulate changes in the data) \n' \
-    '- preprocess data\n' \
-    '- train model\n' \
-    '- predict with best model\n')
+    'using crontab to automate the process: \n' \
+    ' - calls cron_pipeline.sh every 10 minutes \n' \
+    ' - the script calls the FastAPI endpoints in the model container in the following order: \n' \
+    ' - make dataset (chooses a random part of the original data to simulate changes in the data) \n' \
+    ' - preprocess data\n' \
+    ' - train model\n' )
+
+# Add Part about MySQL 
+    st.subheader("MySQL Database")
+    st.write( 
+    'The MySQL database container hosts the raw data. The data is stored in a table called weather_data: \n' \
+    '- the process takes the big weatherAUS.cvs from this source: https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package?resource=download \n' \
+    '- and converts it into a SQL database by creating first an empty tabel with the column definition and then import the data. \n' \
+    '- make_dataset.py then can filter and delete specific columns or parameter (eg. location) to create a smaller subset of the data for preprocessing and modelling. \n' \
+    '- eg. 20 % of the data is randomly chosen to simulate changes in the data over time\n' )
+
+
 
 ###**************************************************************************************************************
 ### Page 3: Preprocessing
