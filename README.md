@@ -142,6 +142,7 @@ Seperate Docker container to automate the process:
 SQL
 ---------------------------
 Task: store data in a local database (SQL)
+
 Solution: src/data/convert_data_to_sql.py 
 - takes the big weatherAUS.cvs from this source: https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package?resource=download
 - converts it into a table called weather_table in weather_australia.db and save it in data/raw
