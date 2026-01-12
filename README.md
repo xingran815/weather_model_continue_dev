@@ -146,16 +146,20 @@ Task: store data in a local database (SQL)
 Solution: src/data/convert_data_to_sql.py 
 - takes the big weatherAUS.cvs from this source: https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package?resource=download
 - converts it into a table called weather_table in weather_australia.db and save it in data/raw
+
 src/test.sql.py 
 - checks for missing/extra columns and the right data type in the table (so far float or string)
+
 src/data/make_dataset.py
 - loads the sql, ignores specific columns and simply filter (e.g the location) the big database. The results will be saved in data/raw
+
 - note: for first instances the data folder and the database are not gitignored!!
 - make dataset filters the .db for e.g location or select a random amonúnt of data for the subset and save it as .csv with current date
 
 Working with a real MySQL project:
 - no databases are shared directly, raw data is weatherAUS.csv
 - everybody needs to execute mySQL for database handling, either in docker or MYSQL workbench
+
 STEP-BY-STEP guide
 - install MYSQL
 - initiating a MYSQL Connection (more infos on How To Do here: https://dev.mysql.com/doc/workbench/en/wb-getting-started-tutorial-create-connection.html)
@@ -166,7 +170,7 @@ STEP-BY-STEP guide
     - it fills the empty table and can handle the 'NA' values from the raw data
 - running the script "test_table.spl.sql" (change the first line (USE {your schema name}))
     - it should create an output with 145460 (number of rows in the table)
--> probably more useful in containerization
+- probably more useful in containerization
 
 
 MySQL dockerization:
