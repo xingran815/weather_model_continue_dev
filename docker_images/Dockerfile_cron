@@ -12,8 +12,10 @@ RUN chmod +x ./src/cron_pipeline.sh
 # Create necessary directories
 
 # Defining the cron job and executing it every 10 minutes
-RUN echo "*/10 * * * * root MODEL_URI=${MODEL_URI:-http://weather_model_container:8000} /app/src/cron_pipeline.sh" > /etc/cron.d/my-cron \
-    && chmod 0644 /etc/cron.d/my-cron \
-    && crontab /etc/cron.d/my-cron
+RUN echo "*/10 * * * * /bin/bash /app/src/cron_pipeline.sh >> /var/log/cron.log 2>&1" | crontab -
+# RUN echo "*/10 * * * * root MODEL_URI=${MODEL_URI:-http://weather_model_container:8000} /app/src/cron_pipeline.sh" > /etc/cron.d/my-cron \
+#     && chmod 0644 /etc/cron.d/my-cron \
+#     && crontab /etc/cron.d/my-cron
 
-CMD ["cron", "-f"]
+#CMD ["cron", "-f"]
+CMD /bin/bash /app/src/cron_pipeline.sh && cron -f
