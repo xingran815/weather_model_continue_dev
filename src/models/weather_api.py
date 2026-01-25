@@ -36,7 +36,6 @@ class curr_status:
 
 training_status = curr_status()
 predict_status = curr_status()
-model_info = None
 FILE_DATASET = None
 FILE_PREPROCESSING = None
 DATE = None
@@ -57,8 +56,7 @@ def wrapper_train_model():
     training_status.progress = 0
     training_status.message = "Starting training..."
     try:
-        global model_info
-        model_info = training(FILE_PREPROCESSING, callback=update_training_progress)
+        training(FILE_PREPROCESSING, callback=update_training_progress)
         training_status.status = "completed"
     except Exception as e:
         training_status.status = "failed"
@@ -66,12 +64,12 @@ def wrapper_train_model():
         raise e
 
 
-def wrapper_predict(model_info: mlflow.models.model.ModelInfo):
+def wrapper_predict():
     predict_status.status = "running"
     predict_status.progress = 0
     predict_status.message = "Starting prediction..."
     try:
-        predict(model_info, FILE_PREPROCESSING, callback=update_predict_progress)
+        predict(FILE_PREPROCESSING, callback=update_predict_progress)
         predict_status.status = "completed"
     except Exception as e:
         predict_status.status = "failed"
@@ -109,12 +107,8 @@ def get_predict(background_tasks: BackgroundTasks):
             raise HTTPException(
                 status_code=503,
                 detail='Prediction is in progress, please try again later')
-        elif model_info is None:
-            raise HTTPException(
-                status_code=404,
-                detail='Model not found, please train the model first')
         else:
-            background_tasks.add_task(wrapper_predict, model_info)
+            background_tasks.add_task(wrapper_predict)
             return {'status': 'prediction started.'}
     except HTTPException:
         raise

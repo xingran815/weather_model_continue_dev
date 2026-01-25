@@ -10,8 +10,7 @@ from io import StringIO
 
 ##################################################
 
-def predict(model_info: mlflow.models.model.ModelInfo,
-            input_path: Optional[str] = None, 
+def predict(input_path: Optional[str] = None, 
             output_path: Optional[str] = None,
             callback: Optional[callable] = None):
     log_stream = StringIO()
@@ -39,7 +38,9 @@ def predict(model_info: mlflow.models.model.ModelInfo,
     if callback:
         callback(10, "Loading model...")
     logger.info("Loading model from MLFlow...")
-    model = mlflow.sklearn.load_model(model_info.model_uri)
+
+    model_name = "best_AUS_weather_model"
+    model = mlflow.sklearn.load_model(f"models:/{model_name}@champion")
 
     feature_names = joblib.load(FEATURES_PATH)
 

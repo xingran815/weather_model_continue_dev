@@ -2,6 +2,7 @@ import os
 import joblib
 import pandas as pd
 import mlflow
+from mlflow.tracking import MlflowClient
 import logging
 from io import StringIO
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -13,7 +14,7 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 ###################################################
 # define training
-def training(FILE, callback=None) -> mlflow.models.model.ModelInfo: 
+def training(FILE, callback=None):
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
@@ -100,12 +101,10 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
         "GradientBoosting": GradientBoostingClassifier(**params["GradientBoosting"]),
         }
 
-    # with mlflow.start_run(run_name="weather_20percent_best_model") as parent_run:
     first_model = True
     total_model = len(models)
     i = 0
     for name, model in models.items():
-        # with mlflow.start_run(run_name=name, nested=True) as child_run:
         if callback:
             callback(20 + int((90-20)/total_model * i),
                      f"Training {name}...")
@@ -144,10 +143,25 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
         mlflow.log_metric("recall", best_rec)
         mlflow.log_metric("f1_score", best_f1)
         # log best model
+        model_name = "best_AUS_weather_model"
         model_info = mlflow.sklearn.log_model(sk_model=best_model,
-                                              name="best_model",
-                                              input_example=X_train_np[:1])
-        mlflow.set_tag("Training Info", "best model for Weather Australia data")
+                                              name=f"best_model_{best_name.lower()}",
+                                              input_example=X_train_np[:1],
+                                              registered_model_name=model_name)
+        mlflow.set_tag("Training Info", f"saved {best_name} as the best model.")
+        client = MlflowClient()
+        try:
+            # fetch the champion model
+            version = client.get_model_version_by_alias(name=model_name, alias="champion")
+            production_f1 = client.get_run(version.run_id).data.metrics.get("f1_score", 0)
+            # check if the trained model outperforms the champion model
+            if best_f1 > production_f1:
+                logger.info(f"promoting new model to champion, new best f1: {best_f1}, old best f1: {production_f1}")
+                # promote the new current best model to champion
+                client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
+        except:
+            # if no champion model exists, create one
+            client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
 
     logger.info("best model is saved.")
 
@@ -159,8 +173,6 @@ def training(FILE, callback=None) -> mlflow.models.model.ModelInfo:
 
     if callback:
         callback(100, log_stream.getvalue())
-
-    return model_info
 
 #####################################################
 
