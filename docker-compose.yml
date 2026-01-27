@@ -4,7 +4,7 @@ services:
     image: weather_sql:latest
     build:
       context: .
-      dockerfile: mysql/Dockerfile
+      dockerfile: docker_images/Dockerfile_sql
     container_name: weather_sql_container
     networks:
       - my_network_by_compose
