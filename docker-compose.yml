@@ -21,6 +21,8 @@ services:
       - my_network_by_compose
     ports:
       - "8080:8080"
+    volumes:
+      - shared-models:/app/models
   # model
   model:
     depends_on: 
@@ -37,6 +39,7 @@ services:
       - "8000:8000"
     volumes:
       - shared-data:/app/data
+      - shared-models:/app/models
     environment:
       MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
   # Streamlit
@@ -74,7 +77,7 @@ services:
 
   # testing model
   test_model:
-    image: datascientest/curl:latest
+    image: alpine/curl:latest
     networks:
       - my_network_by_compose
     command: ["http://weather_model_container:8000"]
@@ -83,6 +86,7 @@ services:
   
 volumes:
   shared-data:
+  shared-models:
 
 networks:
   my_network_by_compose: 

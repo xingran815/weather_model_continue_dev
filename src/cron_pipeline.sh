@@ -6,7 +6,6 @@ export PATH=/usr/bin:/bin
 export MODEL_URI=${MODEL_URI:-http://model:8000}
 
 LOG="/app/data/cron.log" 
-mkdir -p /app/data 
 
 sleep 60
 
