@@ -78,8 +78,9 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API_AUTH__JWT_ISSUER: 'apache-airflow'
       AIRFLOW__API_AUTH__JWT_AUDIENCE: 'apache-airflow'
+      AIRFLOW__CORE__DAGS_FOLDER: '/app/airflow/dags'
     volumes:
-      - shared-airflow:/opt/airflow/logs
+      - airflow-data:/opt/airflow
 
   # cron:
   #   depends_on: 
@@ -108,7 +109,7 @@ services:
 volumes:
   shared-data:
   shared-models:
-  shared-airflow:
+  airflow-data:
 
 networks:
   my_network_by_compose: 

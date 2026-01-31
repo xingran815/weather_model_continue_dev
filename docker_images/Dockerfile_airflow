@@ -9,6 +9,6 @@ RUN apt-get update \
 USER airflow
 WORKDIR /app
 COPY requirements.txt ./
-COPY --chown=airflow:root airflow/dags/weather_pipeline_dag.py /opt/airflow/dags
+COPY --chown=airflow:root airflow/dags/weather_pipeline_dag.py ./airflow/dags/weather_pipeline_dag.py
 EXPOSE 8080
 RUN pip install --no-cache-dir -r requirements.txt
