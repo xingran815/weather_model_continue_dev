@@ -60,6 +60,7 @@ services:
     ports:
       - "8501:8501"
 
+  # Orchestration
   airflow:
     image: weather_airflow:latest
     depends_on:
@@ -81,21 +82,6 @@ services:
       AIRFLOW__CORE__DAGS_FOLDER: '/app/airflow/dags'
     volumes:
       - airflow-data:/opt/airflow
-
-  # cron:
-  #   depends_on: 
-  #     - model
-  #     - mysql
-  #   build:
-  #     context: .
-  #     dockerfile: docker_images/Dockerfile_cron
-  #   container_name: weather_cron_container
-  #   networks:
-  #     - my_network_by_compose
-  #   volumes:
-  #     - shared-data:/app/data
-  #   environment:
-  #     MODEL_URI: 'http://weather_model_container:8000'
 
   # testing model
   test_model:
