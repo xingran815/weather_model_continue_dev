@@ -60,20 +60,41 @@ services:
     ports:
       - "8501:8501"
 
-  cron:
-    depends_on: 
+  airflow:
+    image: weather_airflow:latest
+    depends_on:
       - model
-      - mysql
     build:
       context: .
-      dockerfile: docker_images/Dockerfile_cron
-    container_name: weather_cron_container
+      dockerfile: docker_images/Dockerfile_airflow
+    container_name: weather_airflow_container
     networks:
       - my_network_by_compose
-    volumes:
-      - shared-data:/app/data
+    ports:
+      - "8081:8080"
+    command: airflow standalone
     environment:
-      MODEL_URI: 'http://weather_model_container:8000'
+      AIRFLOW_CONN_MODEL_API: 'http://weather_model_container:8000'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API_AUTH__JWT_ISSUER: 'apache-airflow'
+      AIRFLOW__API_AUTH__JWT_AUDIENCE: 'apache-airflow'
+    volumes:
+      - shared-airflow:/opt/airflow/logs
+
+  # cron:
+  #   depends_on: 
+  #     - model
+  #     - mysql
+  #   build:
+  #     context: .
+  #     dockerfile: docker_images/Dockerfile_cron
+  #   container_name: weather_cron_container
+  #   networks:
+  #     - my_network_by_compose
+  #   volumes:
+  #     - shared-data:/app/data
+  #   environment:
+  #     MODEL_URI: 'http://weather_model_container:8000'
 
   # testing model
   test_model:
@@ -87,6 +108,7 @@ services:
 volumes:
   shared-data:
   shared-models:
+  shared-airflow:
 
 networks:
   my_network_by_compose: 

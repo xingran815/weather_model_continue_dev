@@ -1,0 +1,14 @@
+FROM apache/airflow:3.1.6
+USER root
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+         vim \
+  && apt-get autoremove -yqq --purge \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+USER airflow
+WORKDIR /app
+COPY requirements.txt ./
+COPY --chown=airflow:root airflow/dags/weather_pipeline_dag.py /opt/airflow/dags
+EXPOSE 8080
+RUN pip install --no-cache-dir -r requirements.txt
