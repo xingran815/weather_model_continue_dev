@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.providers.http.operators.http import HttpOperator
+from airflow.providers.http.sensors.http import HttpSensor
 import datetime
 
 
@@ -12,10 +13,21 @@ with DAG(
     schedule='*/10 * * * *',
     default_args={
         'owner': 'airflow',
+        'retries': 2,
+        'retry_delay': datetime.timedelta(seconds=60),
         'start_date': datetime.datetime(2026, 1, 31),
     },
-    catchup=False
+    catchup=False,
 ) as my_dag:
+
+
+    check_model_service = HttpSensor(
+        task_id='check_model_service',
+        http_conn_id='model_api',
+        endpoint='/',
+        poke_interval=30,
+        timeout=120,
+    )
 
     task_make_dataset = HttpOperator(
         task_id="make_dataset",
@@ -41,4 +53,7 @@ with DAG(
         headers={},
     )
 
-    task_make_dataset >> task_preprocessing >> task_training
+    check_model_service >> \
+    task_make_dataset >> \
+    task_preprocessing >> \
+    task_training
