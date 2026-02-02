@@ -35,32 +35,6 @@ def make_dataset() -> tuple[str, str]:
         f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
     )
     
-    columns_to_load = [ # comment the columns you want to drop
-        'Date', 
-        'Location', 
-        'MinTemp', 
-        'MaxTemp', 
-        'Rainfall',
-        #'Evaporation',
-        #'Sunshine',
-        'WindGustDir',
-        'WindGustSpeed',
-        'WindDir9am',
-        'WindDir3pm',
-        'WindSpeed9am',
-        'WindSpeed3pm',
-        'Humidity9am',
-        'Humidity3pm',
-        'Pressure9am',
-        'Pressure3pm',
-        #'Cloud9am',
-        #'Cloud3pm',
-        'Temp9am',
-        'Temp3pm',
-        'RainToday',
-        'RainTomorrow'
-        ]
-    
     #filter query eg.loacation (Canberra, Sydney, Melbourne, Brisbane, Adelaide)
     '''
     all locations:
@@ -111,6 +85,3 @@ def make_dataset() -> tuple[str, str]:
     df.to_csv(OUTPUT_FILE, index=False)
 
     return OUTPUT_FILE, DATE
-
-if __name__ == "__main__":
-    make_dataset()
