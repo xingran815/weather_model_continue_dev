@@ -83,15 +83,6 @@ services:
     volumes:
       - airflow-data:/opt/airflow
 
-  # testing model
-  test_model:
-    image: alpine/curl:latest
-    networks:
-      - my_network_by_compose
-    command: ["http://weather_model_container:8000"]
-    depends_on:
-      - model
-  
 volumes:
   shared-data:
   shared-models:
