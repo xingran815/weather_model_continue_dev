@@ -84,10 +84,10 @@ def get_index():
 
 # API make dataset
 @api.get('/make_dataset', name='make sub-dataset from the raw data', responses=responses)
-def get_make_dataset(duration: Optional[int] = 10):
+def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10):
     global FILE_DATASET, DATE
     try:
-        FILE_DATASET, DATE = make_dataset(duration)
+        FILE_DATASET, DATE = make_dataset(sample_percent, duration)
         return {'status': 'sub-dataset is created.'}
     except Exception as e:
         raise HTTPException(

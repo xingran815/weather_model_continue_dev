@@ -6,13 +6,13 @@ from typing import Optional
 
 
 # Definition of the database created with MySQL Docker container
-def make_dataset(duration: Optional[int] = 10) -> tuple[str, str]: 
+def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10) -> tuple[str, str]: 
     '''
     Connects to the MySQL database, samples a random subset of 20 % of the weather data,
     and saves it as a CSV file in the specified output directory.
     args:
-        duration (int): Duration of the dataset in years.
-        default is 10 years.
+        sample_percent (int): Percentage of the dataset to sample. default is 20%.
+        duration (int): Duration of the dataset in years. default is 10 years.
     Returns:
         OUTPUT_FILE (str): Path to the saved CSV file.
         DATE (str): Timestamp of when the file was created.
@@ -33,8 +33,6 @@ def make_dataset(duration: Optional[int] = 10) -> tuple[str, str]:
     DATE = datetime.now().strftime("%Y%m%d_%H%M")
     OUTPUT_FILE = f'{OUTPUT_DIR}/weather_subset_{DATE}.csv'
     
-    TABLE_PERCENT = 0.2  # x percent of the data
-
     engine = create_engine(
         f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
     )
@@ -68,11 +66,12 @@ def make_dataset(duration: Optional[int] = 10) -> tuple[str, str]:
     end_date = start_date + timedelta(days=365 * duration)
     start_date = start_date.strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
+    print(f"Start date: {start_date}, End date: {end_date}, Sample percentage: {sample_percent}")
 
     # Filter random x % from the data
     with engine.connect() as conn:
         total_rows = conn.execute(text(f"SELECT COUNT(*) FROM {TABLE_NAME}")).scalar()
-        sample_size = int(total_rows * TABLE_PERCENT)
+        sample_size = int(total_rows * sample_percent)
         conn.execute(text(
             f"""
             CREATE TABLE {NEW_TABLE_NAME} AS

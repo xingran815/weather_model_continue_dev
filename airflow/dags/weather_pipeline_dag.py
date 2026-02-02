@@ -1,6 +1,7 @@
 from airflow.sdk import dag, task, Variable
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.http.sensors.http import HttpHook, HttpSensor
+import random
 import datetime
 
 
@@ -40,8 +41,12 @@ def weather_pipeline_dag():
         duration = int(Variable.get('duration', default=2))
         if duration < 10:
             Variable.set('duration', str(duration+1))
+            sample_percent = 0.2
+        else:
+            # when the durations reaches the maximum, change the sample percentage
+            sample_percent = round(random.uniform(0.1, 0.4), 2)
         resp = HttpHook(method="GET", http_conn_id="model_api").run(
-            f"/make_dataset?duration={duration}")
+            f"/make_dataset?duration={duration}&sample_percent={sample_percent}")
         resp.raise_for_status()
 
 
