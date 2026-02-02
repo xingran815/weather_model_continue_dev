@@ -109,7 +109,7 @@ if page == pages[1]:
 # adding knots
 
     dot.node("A","Database (SQL)",style="filled",fillcolor="lightblue", color='blue')
-    dot.node("B", "Cron",style="filled",fillcolor="lightblue", color='blue')
+    dot.node("B", "Airflow",style="filled",fillcolor="lightblue", color='blue')
     dot.node("C", "Model and API",style="filled",fillcolor="lightblue", color='blue')
     dot.node("D", "MLFlow",style="filled",fillcolor="lightblue", color='blue')
     dot.node("E", "Streamlit",style="filled",fillcolor="lightblue", color='blue')
@@ -117,14 +117,10 @@ if page == pages[1]:
 # adding arrows
     dot.edge("A", "C", label="")
     dot.edge("B", "C", label="")
-    dot.edge("B", "D", label="")
-    dot.edge("C", "B", label="")
     dot.edge("C", "D", label="")
     dot.edge("C", "E", label="")
     dot.edge("D", "C", label="")
-    dot.edge("D", "E", label="")
     dot.edge("E", "C", label="")
-    dot.edge("E", "D", label="")
 
 # show diagram in Streamlit
     st.graphviz_chart(dot)
@@ -132,21 +128,23 @@ if page == pages[1]:
 # Add Part about Dockerisation
     st.subheader("Dockerisation")
     st.write( 
-    'five docker containers: cron, MySQL, MLFlow, Streamlit and model services \n' \
-    '- cron container for automating the process \n' \
+    'five docker containers: Airflow, MySQL, MLFlow, Streamlit and model services \n' \
+    '- Airflow container for automating the process \n' \
     '- MySQL container hosts all the raw data \n' \
     '- MLFlow container hosts the mlflow server for storing and restoring the best models\n' \
     '- model container hosts the data substracting, data preprocessing, training, predicting, and FastAPI services\n' \
     '- Streamlit container hosts the Streamlit app\n'' \n' \
     '- to start(or build if not exists) the docker compose use docker compose up and docker-compose.yml - file\n' \
     '- to open the Streamlit app, in your browser, go to http://localhost:8501/\n'\
-    '- to visit the MLflow server, in your browser, go to http://localhost:8080/\n')
+    '- to visit the MLflow server, in your browser, go to http://localhost:8080/\n'\
+    '- to visit the Airflow server, in your browser, go to http://localhost:8081/')
 
-# Add Part about Automation with crontab
+
+# Add Part about Automation with Airflow
     st.subheader("Automation")
     st.write( 
-    'using crontab to automate the process: \n' \
-    ' - calls cron_pipeline.sh every 10 minutes \n' \
+    'using Airflow to automate the process: \n' \
+    ' - calls Airflow DAGs every 10 minutes \n' \
     ' - the script calls the FastAPI endpoints in the model container in the following order: \n' \
     ' - make dataset (chooses a random part of the original data to simulate changes in the data) \n' \
     ' - preprocess data\n' \
@@ -348,7 +346,7 @@ if page == pages[5]:
     st.subheader("Conclusion")
 
     st.write('- The project does predict the weather of tomorrow by using changing data automatically\n' \
-    '- The steps for the making dataset, preprocessing, and modelling are automized by crontab\n' \
+    '- The steps for the making dataset, preprocessing, and modelling are automized by Airflow\n' \
     '- For the application 5 Docker containers are used via docker compose. Communicating is managed by docker compose network.\n' \
     '- Model training is tracked by the MLFlow,\n'
     '- FastAPI application is used to expose the core functionalities of the project.\n')
@@ -356,11 +354,9 @@ if page == pages[5]:
     st.subheader("Outlook")
 
     st.write('When we had more time for the project we would extend it with:\n' \
-    '1) Production-grade orchestration (e.g. Airflow) instead of cron,  \n' \
-    '   Advantages of Airflow: support monitoring of the models, more complex workflows possible\n' \
-    '2) Data and experiment versioning using DagsHub  \n' \
+    '1) Data and experiment versioning using DagsHub  \n' \
     '   Advantages of DagsHub: better tracking of data, code and model artifacts changes over time\n' \
-    '3) Better observability and security  \n'
+    '2) Better observability and security  \n'
     '   Prometheus and Grafana, authenticated access to the API and Streamlit app  \n' \
-    '4) End-to-end CI/CD for the ML pipeline (tests, linting and automated deployment of models and API).\n')
+    '3) End-to-end CI/CD for the ML pipeline (tests, linting and automated deployment of models and API).\n')
 
