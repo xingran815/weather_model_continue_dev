@@ -1,6 +1,6 @@
-from airflow.decorators import dag
+from airflow.sdk import dag, task, Variable
 from airflow.providers.http.operators.http import HttpOperator
-from airflow.providers.http.sensors.http import HttpSensor
+from airflow.providers.http.sensors.http import HttpHook, HttpSensor
 import datetime
 
 
@@ -25,6 +25,7 @@ DEFAULT_ARGS = {
     catchup=False,
 )
 def weather_pipeline_dag():
+
     check_model_service = HttpSensor(
         task_id='check_model_service',
         http_conn_id='model_api',
@@ -33,13 +34,16 @@ def weather_pipeline_dag():
         timeout=120,
     )
 
-    task_make_dataset = HttpOperator(
-        task_id="make_dataset",
-        http_conn_id="model_api",
-        endpoint="/make_dataset",
-        method="GET",
-        headers={},
-    )
+
+    @task(task_id='make_dataset')
+    def task_make_dataset():
+        duration = int(Variable.get('duration', default=2))
+        if duration < 10:
+            Variable.set('duration', str(duration+1))
+        resp = HttpHook(method="GET", http_conn_id="model_api").run(
+            f"/make_dataset?duration={duration}")
+        resp.raise_for_status()
+
 
     task_preprocessing = HttpOperator(
         task_id="preprocessing",
@@ -49,6 +53,7 @@ def weather_pipeline_dag():
         headers={},
     )
 
+
     task_training = HttpOperator(
         task_id="training",
         http_conn_id="model_api",
@@ -57,8 +62,9 @@ def weather_pipeline_dag():
         headers={},
     )
 
+
     check_model_service >> \
-    task_make_dataset >> \
+    task_make_dataset() >> \
     task_preprocessing >> \
     task_training
 

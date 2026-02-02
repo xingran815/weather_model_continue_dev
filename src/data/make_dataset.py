@@ -1,14 +1,18 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
+from typing import Optional
 
 
 # Definition of the database created with MySQL Docker container
-def make_dataset() -> tuple[str, str]: 
+def make_dataset(duration: Optional[int] = 10) -> tuple[str, str]: 
     '''
     Connects to the MySQL database, samples a random subset of 20 % of the weather data,
     and saves it as a CSV file in the specified output directory.
+    args:
+        duration (int): Duration of the dataset in years.
+        default is 10 years.
     Returns:
         OUTPUT_FILE (str): Path to the saved CSV file.
         DATE (str): Timestamp of when the file was created.
@@ -59,6 +63,12 @@ def make_dataset() -> tuple[str, str]:
             """
         ))
     
+    # Calculate the start and end date of the dataset
+    start_date = datetime(year=2008, month=1, day=1)
+    end_date = start_date + timedelta(days=365 * duration)
+    start_date = start_date.strftime('%Y-%m-%d')
+    end_date = end_date.strftime('%Y-%m-%d')
+
     # Filter random x % from the data
     with engine.connect() as conn:
         total_rows = conn.execute(text(f"SELECT COUNT(*) FROM {TABLE_NAME}")).scalar()
@@ -68,6 +78,7 @@ def make_dataset() -> tuple[str, str]:
             CREATE TABLE {NEW_TABLE_NAME} AS
             SELECT *
             FROM {TABLE_NAME}
+            WHERE Date >= '{start_date}' and Date <= '{end_date}'
             ORDER BY RAND()
             LIMIT {sample_size}
             """

@@ -5,6 +5,7 @@ from src.models.predict_model import predict
 from src.data.make_dataset import make_dataset
 from src.data.preprocessing import preprocessing
 from dataclasses import dataclass
+from typing import Optional
 import mlflow
 
 
@@ -83,10 +84,10 @@ def get_index():
 
 # API make dataset
 @api.get('/make_dataset', name='make sub-dataset from the raw data', responses=responses)
-def get_make_dataset():
+def get_make_dataset(duration: Optional[int] = 10):
     global FILE_DATASET, DATE
     try:
-        FILE_DATASET, DATE = make_dataset()
+        FILE_DATASET, DATE = make_dataset(duration)
         return {'status': 'sub-dataset is created.'}
     except Exception as e:
         raise HTTPException(
