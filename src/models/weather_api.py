@@ -85,15 +85,27 @@ def get_index():
 @api.get('/make_dataset', name='make sub-dataset from the raw data', responses=responses)
 def get_make_dataset():
     global FILE_DATASET, DATE
-    FILE_DATASET, DATE = make_dataset()
-    return {'status': 'sub-dataset is created.'}
+    try:
+        FILE_DATASET, DATE = make_dataset()
+        return {'status': 'sub-dataset is created.'}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f'Failed to create sub-dataset: {str(e)}'
+        )
 
 # API Preprocessing
 @api.get('/preprocessing', name='preprocess the data', responses=responses)
 def get_preprocessing():
     global FILE_PREPROCESSING
-    FILE_PREPROCESSING = preprocessing(FILE_DATASET, DATE)
-    return {'status': 'data is preprocessed.'}
+    try:
+        FILE_PREPROCESSING = preprocessing(FILE_DATASET, DATE)
+        return {'status': 'data is preprocessed.'}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f'Failed to preprocess data: {str(e)}'
+        )
 
 # API prediction
 @api.get('/predict', name='Predict The Weather', responses=responses)

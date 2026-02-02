@@ -85,8 +85,3 @@ def preprocessing(INPUT_FILE, DATE) -> str:
     print("Preprocessing done")
 
     return OUTPUT_FILE
-
-
-
-if __name__ == "__main__":
-    preprocessing()

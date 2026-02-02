@@ -4,7 +4,7 @@ services:
     image: weather_sql:latest
     build:
       context: .
-      dockerfile: mysql/Dockerfile
+      dockerfile: docker_images/Dockerfile_sql
     container_name: weather_sql_container
     networks:
       - my_network_by_compose
@@ -21,6 +21,8 @@ services:
       - my_network_by_compose
     ports:
       - "8080:8080"
+    volumes:
+      - shared-models:/app/models
   # model
   model:
     depends_on: 
@@ -37,6 +39,7 @@ services:
       - "8000:8000"
     volumes:
       - shared-data:/app/data
+      - shared-models:/app/models
     environment:
       MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
   # Streamlit
@@ -57,24 +60,32 @@ services:
     ports:
       - "8501:8501"
 
-  cron:
-    depends_on: 
+  # Orchestration
+  airflow:
+    image: weather_airflow:latest
+    depends_on:
       - model
-      - mysql
     build:
       context: .
-      dockerfile: docker_images/Dockerfile_cron
-    container_name: weather_cron_container
+      dockerfile: docker_images/Dockerfile_airflow
+    container_name: weather_airflow_container
     networks:
       - my_network_by_compose
-    volumes:
-      - shared-data:/app/data
+    ports:
+      - "8081:8080"
+    command: airflow standalone
     environment:
-      MODEL_URI: 'http://weather_model_container:8000'
+      AIRFLOW_CONN_MODEL_API: 'http://weather_model_container:8000'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API_AUTH__JWT_ISSUER: 'apache-airflow'
+      AIRFLOW__API_AUTH__JWT_AUDIENCE: 'apache-airflow'
+      AIRFLOW__CORE__DAGS_FOLDER: '/app/airflow/dags'
+    volumes:
+      - airflow-data:/opt/airflow
 
   # testing model
   test_model:
-    image: datascientest/curl:latest
+    image: alpine/curl:latest
     networks:
       - my_network_by_compose
     command: ["http://weather_model_container:8000"]
@@ -83,6 +94,8 @@ services:
   
 volumes:
   shared-data:
+  shared-models:
+  airflow-data:
 
 networks:
   my_network_by_compose: 
