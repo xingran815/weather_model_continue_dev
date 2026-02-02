@@ -1,26 +1,30 @@
-from airflow import DAG
+from airflow.decorators import dag
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.http.sensors.http import HttpSensor
 import datetime
 
 
 
-with DAG(
-    dag_id='weather_pipeline_dag',
-    description='weather pipeline for data substracting, \
-        preprocessing, training, and prediction.',
-    tags=['weather', 'pipeline'],
-    schedule='*/10 * * * *',
-    default_args={
-        'owner': 'airflow',
-        'retries': 2,
-        'retry_delay': datetime.timedelta(seconds=60),
-        'start_date': datetime.datetime(2026, 1, 31),
-    },
+DEFAULT_ARGS = {
+    "owner": "airflow",
+    "retries": 2,
+    "retry_delay": datetime.timedelta(seconds=60),
+    "start_date": datetime.datetime(2026, 1, 31),
+}
+
+
+@dag(
+    dag_id="weather_pipeline_dag",
+    description=(
+        "weather pipeline for data substracting, preprocessing, training, and"
+        " prediction."
+    ),
+    tags=["weather", "pipeline"],
+    schedule="*/10 * * * *",
+    default_args=DEFAULT_ARGS,
     catchup=False,
-) as my_dag:
-
-
+)
+def weather_pipeline_dag():
     check_model_service = HttpSensor(
         task_id='check_model_service',
         http_conn_id='model_api',
@@ -57,3 +61,6 @@ with DAG(
     task_make_dataset >> \
     task_preprocessing >> \
     task_training
+
+
+dag = weather_pipeline_dag()
