@@ -14,7 +14,8 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 ###################################################
 # define training
-def training(FILE, callback=None):
+def training(traning_args, callback=None):
+    FILE = traning_args['processed_data_file']
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
@@ -135,7 +136,7 @@ def training(FILE, callback=None):
     if callback:
         callback(90, "Logging best model...")
 
-    with mlflow.start_run(run_name="weather_20percent_best_model") as run:
+    with mlflow.start_run(run_name="weather_model") as run:
         mlflow.log_params(params[best_name])
         # log best model metrics
         mlflow.log_metric("accuracy", best_acc)
@@ -148,7 +149,9 @@ def training(FILE, callback=None):
                                               name=f"best_model_{best_name.lower()}",
                                               input_example=X_train_np[:1],
                                               registered_model_name=model_name)
-        mlflow.set_tag("Training Info", f"saved {best_name} as the best model.")
+        mlflow.set_tag("best_model_name", f"{best_name}")
+        mlflow.set_tag("sample_percent", f"{traning_args['sample_percent']}")
+        mlflow.set_tag("duration", f"{traning_args['duration']} years")
         client = MlflowClient()
         try:
             # fetch the champion model
