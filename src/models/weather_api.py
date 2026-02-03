@@ -96,7 +96,6 @@ def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[i
 # API Preprocessing
 @api.get('/preprocessing', name='preprocess the data', responses=responses)
 def get_preprocessing():
-    global model_args
     try:
         preprocessing(model_args)
         return {'status': 'data is preprocessed.'}
@@ -109,7 +108,6 @@ def get_preprocessing():
 # API prediction
 @api.get('/predict', name='Predict The Weather', responses=responses)
 def get_predict(background_tasks: BackgroundTasks):
-    global model_args
     try:
         if training_status.status != "completed":
             raise HTTPException(
@@ -131,7 +129,6 @@ def get_predict(background_tasks: BackgroundTasks):
 @api.get('/training', name='Train The Model with existing data',
          responses=responses)
 def get_training(background_tasks: BackgroundTasks):
-    global model_args
     try:
         if training_status.status == "running":
             raise HTTPException(
