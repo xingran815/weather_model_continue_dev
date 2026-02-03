@@ -6,7 +6,7 @@ from typing import Optional
 
 
 # Definition of the database created with MySQL Docker container
-def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10) -> tuple[str, str]: 
+def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10) -> dict:
     '''
     Connects to the MySQL database, samples a random subset of 20 % of the weather data,
     and saves it as a CSV file in the specified output directory.
@@ -14,8 +14,7 @@ def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] 
         sample_percent (int): Percentage of the dataset to sample. default is 20%.
         duration (int): Duration of the dataset in years. default is 10 years.
     Returns:
-        OUTPUT_FILE (str): Path to the saved CSV file.
-        DATE (str): Timestamp of when the file was created.
+        dict object with output file, date, sample percentage and duration
 
     '''
     MYSQL_USER = "root"
@@ -94,4 +93,6 @@ def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] 
     # Save the sampled data to a CSV file
     df.to_csv(OUTPUT_FILE, index=False)
 
-    return OUTPUT_FILE, DATE
+    # return a json object with the output file and date
+    return {'raw_data_file': OUTPUT_FILE, 'processed_data_file': None, 'date': DATE,
+        'sample_percent': sample_percent, 'duration': duration}

@@ -15,7 +15,9 @@ def vector_normalize(X):
     return pd.DataFrame(X_normalized, columns=X.columns)
 
 # define preprocesing
-def preprocessing(INPUT_FILE, DATE) -> str:
+def preprocessing(model_args):
+    INPUT_FILE = model_args['raw_data_file']
+    DATE = model_args['date']
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     df= pd.read_csv(INPUT_FILE).dropna(how='all')
     # correct import
@@ -84,4 +86,4 @@ def preprocessing(INPUT_FILE, DATE) -> str:
     df_encoded.to_csv(OUTPUT_FILE, index=False)
     print("Preprocessing done")
 
-    return OUTPUT_FILE
+    model_args['processed_data_file'] = OUTPUT_FILE

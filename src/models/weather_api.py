@@ -37,9 +37,7 @@ class curr_status:
 
 training_status = curr_status()
 predict_status = curr_status()
-FILE_DATASET = None
-FILE_PREPROCESSING = None
-DATE = None
+model_args = None
 
 # define functions used
 def update_training_progress(progress: int, message: str):
@@ -52,12 +50,12 @@ def update_predict_progress(progress: int, message: str):
     predict_status.message = message
 
 
-def wrapper_train_model():
+def wrapper_train_model(traning_args):
     training_status.status = "running"
     training_status.progress = 0
     training_status.message = "Starting training..."
     try:
-        training(FILE_PREPROCESSING, callback=update_training_progress)
+        training(traning_args, callback=update_training_progress)
         training_status.status = "completed"
     except Exception as e:
         training_status.status = "failed"
@@ -65,12 +63,12 @@ def wrapper_train_model():
         raise e
 
 
-def wrapper_predict():
+def wrapper_predict(predict_args):
     predict_status.status = "running"
     predict_status.progress = 0
     predict_status.message = "Starting prediction..."
     try:
-        predict(FILE_PREPROCESSING, callback=update_predict_progress)
+        predict(predict_args['processed_data_file'], callback=update_predict_progress)
         predict_status.status = "completed"
     except Exception as e:
         predict_status.status = "failed"
@@ -85,9 +83,9 @@ def get_index():
 # API make dataset
 @api.get('/make_dataset', name='make sub-dataset from the raw data', responses=responses)
 def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10):
-    global FILE_DATASET, DATE
+    global model_args
     try:
-        FILE_DATASET, DATE = make_dataset(sample_percent, duration)
+        model_args = make_dataset(sample_percent, duration)
         return {'status': 'sub-dataset is created.'}
     except Exception as e:
         raise HTTPException(
@@ -98,9 +96,9 @@ def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[i
 # API Preprocessing
 @api.get('/preprocessing', name='preprocess the data', responses=responses)
 def get_preprocessing():
-    global FILE_PREPROCESSING
+    global model_args
     try:
-        FILE_PREPROCESSING = preprocessing(FILE_DATASET, DATE)
+        preprocessing(model_args)
         return {'status': 'data is preprocessed.'}
     except Exception as e:
         raise HTTPException(
@@ -111,6 +109,7 @@ def get_preprocessing():
 # API prediction
 @api.get('/predict', name='Predict The Weather', responses=responses)
 def get_predict(background_tasks: BackgroundTasks):
+    global model_args
     try:
         if training_status.status != "completed":
             raise HTTPException(
@@ -121,7 +120,7 @@ def get_predict(background_tasks: BackgroundTasks):
                 status_code=503,
                 detail='Prediction is in progress, please try again later')
         else:
-            background_tasks.add_task(wrapper_predict)
+            background_tasks.add_task(wrapper_predict, model_args)
             return {'status': 'prediction started.'}
     except HTTPException:
         raise
@@ -132,13 +131,14 @@ def get_predict(background_tasks: BackgroundTasks):
 @api.get('/training', name='Train The Model with existing data',
          responses=responses)
 def get_training(background_tasks: BackgroundTasks):
+    global model_args
     try:
         if training_status.status == "running":
             raise HTTPException(
                 status_code=503,
                 detail='Training is in progress, please try again later')
         elif training_status.status == "inactive" or training_status.status == "completed" or training_status.status == "failed":
-            background_tasks.add_task(wrapper_train_model)
+            background_tasks.add_task(wrapper_train_model, model_args)
             return {'status': 'training started'}
     except HTTPException:
         raise
