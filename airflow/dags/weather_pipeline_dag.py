@@ -45,9 +45,10 @@ def weather_pipeline_dag():
         else:
             # when the durations reaches the maximum, change the sample percentage
             sample_percent = round(random.uniform(0.1, 0.4), 2)
-        resp = HttpHook(method="GET", http_conn_id="model_api").run(
-            f"/make_dataset?duration={duration}&sample_percent={sample_percent}")
-        resp.raise_for_status()
+            HttpHook(method="GET", http_conn_id="model_api").run(
+                endpoint="/make_dataset",
+                data={"duration": duration, "sample_percent": sample_percent},
+                )
 
 
     task_preprocessing = HttpOperator(
