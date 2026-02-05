@@ -8,7 +8,12 @@ from io import StringIO
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    train_test_split,
+    RandomizedSearchCV,
+    StratifiedKFold,
+    cross_val_score,
+)
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
 
@@ -62,83 +67,120 @@ def training(traning_args, callback=None):
 
     X_train_np = X_train.values
     X_test_np = X_test.values
-    y_train_np = y_train.values # need to convert for autologging
+    y_train_np = y_train.values
     y_test_np = y_test.values
     logger.info("train-test split is done.")
 
-    # Define baseline models
-    params = {
+    # define cross-validation parameters
+    cv_split = StratifiedKFold(n_splits=3, shuffle=True)
+    n_iter_search = 6
+
+    # define parameter grids for each model
+    param_grids = {
         "KNeighbors": {
-            "n_neighbors": 25,
-            "weights": "distance",
-            "metric": "minkowski",
-            "p": 2,
+            "n_neighbors": [5, 15, 25, 35],
+            "weights": ["uniform", "distance"],
+            "p": [1, 2],
         },
         "DecisionTree": {
-            "max_depth": 6,
-            "min_samples_split": 20,
-            "min_samples_leaf": 10,
-            "max_features": "sqrt",
+            "max_depth": [4, 6, 8, 10, None],
+            "min_samples_split": [2, 10, 20],
+            "min_samples_leaf": [2, 5, 10],
+            "max_features": ["sqrt", "log2"],
         },
         "RandomForest": {
-            "n_estimators": 200,
-            "max_depth": 10,
-            "min_samples_leaf": 5,
-            "max_features": "sqrt",
-            "n_jobs": -1,
+            "n_estimators": [100, 200, 300],
+            "max_depth": [8, 10, 15, None],
+            "min_samples_leaf": [2, 5, 10],
+            "max_features": ["sqrt", "log2"],
         },
         "GradientBoosting": {
-            "n_estimators": 150,
-            "learning_rate": 0.1,
-            "max_depth": 3,
-            "subsample": 0.8,
+            "n_estimators": [100, 150, 200],
+            "learning_rate": [0.05, 0.1, 0.2],
+            "max_depth": [3, 4, 5],
+            "subsample": [0.7, 0.8, 1.0],
         },
     }
 
-    models = {
-        "KNeighbors": KNeighborsClassifier(**params["KNeighbors"]),
-        "DecisionTree": DecisionTreeClassifier(**params["DecisionTree"]),
-        "RandomForest": RandomForestClassifier(**params["RandomForest"]),
-        "GradientBoosting": GradientBoostingClassifier(**params["GradientBoosting"]),
-        }
+    base_models = {
+        "KNeighbors": KNeighborsClassifier(),
+        "DecisionTree": DecisionTreeClassifier(class_weight="balanced"),
+        "RandomForest": RandomForestClassifier(class_weight="balanced", n_jobs=-1),
+        "GradientBoosting": GradientBoostingClassifier(),
+    }
 
     first_model = True
-    total_model = len(models)
-    i = 0
-    for name, model in models.items():
+    best_params = {}
+    model_list = list(base_models.keys())
+    total_models = len(model_list)
+
+    for i, name in enumerate(model_list):
         if callback:
-            callback(20 + int((90-20)/total_model * i),
-                     f"Training {name}...")
-            i += 1
+            callback(
+                20 + int((90 - 20) / total_models * i),
+                f"Training {name}...",
+            )
 
-        model.fit(X_train_np, y_train_np)
+        # use random search for each model to find the best parameters according to the f1 score
+        search = RandomizedSearchCV(
+            base_models[name],
+            param_grids[name],
+            n_iter=n_iter_search,
+            cv=3,
+            scoring="f1",
+            random_state=42,
+            n_jobs=-1,
+        )
+        search.fit(X_train_np, y_train_np)
+        model = search.best_estimator_
+        best_params[name] = search.best_params_
+
+        cv_scores = cross_val_score(
+            model, X_train_np, y_train_np, cv=cv_split, scoring="f1"
+        )
+        mean_cv_f1 = float(cv_scores.mean())
+        logger.info(f"\nModel: {name} (Mean CV F1: {mean_cv_f1:.4f})")
+
         y_pred = model.predict(X_test_np)
-
         acc = accuracy_score(y_test_np, y_pred)
-        prec = precision_score(y_test_np, y_pred)
-        rec = recall_score(y_test_np, y_pred)
-        f1 = f1_score(y_test_np, y_pred)
+        prec = precision_score(y_test_np, y_pred, zero_division=0)
+        rec = recall_score(y_test_np, y_pred, zero_division=0)
+        f1 = f1_score(y_test_np, y_pred, zero_division=0)
 
-        logger.info(f"\nModel: {name}")
         logger.info(f"  Accuracy : {acc}")
         logger.info(f"  Precision: {prec}")
         logger.info(f"  Recall   : {rec}")
         logger.info(f"  F1-score : {f1}")
 
         if first_model:
-            best_name, best_acc, best_prec, best_rec, best_f1, best_model = name, acc, prec, rec, f1, model
+            best_name, best_acc, best_prec, best_rec, best_f1, best_mean_cv_f1, best_model = (
+                name,
+                acc,
+                prec,
+                rec,
+                f1,
+                mean_cv_f1,
+                model,
+            )
             first_model = False
-        else:
-            # Choose best model by F1-score
-            if f1 > best_f1:
-                best_name, best_acc, best_prec, best_rec, best_f1, best_model = name, acc, prec, rec, f1, model
+        elif mean_cv_f1 > best_mean_cv_f1:
+            best_name, best_acc, best_prec, best_rec, best_f1, best_mean_cv_f1, best_model = (
+                name,
+                acc,
+                prec,
+                rec,
+                f1,
+                mean_cv_f1,
+                model,
+            )
 
     if callback:
         callback(90, "Logging best model...")
 
     with mlflow.start_run(run_name="weather_model") as run:
-        mlflow.log_params(params[best_name])
-        # log best model metrics
+        # log best model metrics and parameters
+        mlflow.log_params(best_params.get(best_name, {}))
+        mlflow.log_metric("mean_cv_f1", best_mean_cv_f1)
         mlflow.log_metric("accuracy", best_acc)
         mlflow.log_metric("precision", best_prec)
         mlflow.log_metric("recall", best_rec)
@@ -156,10 +198,10 @@ def training(traning_args, callback=None):
         try:
             # fetch the champion model
             version = client.get_model_version_by_alias(name=model_name, alias="champion")
-            production_f1 = client.get_run(version.run_id).data.metrics.get("f1_score", 0)
+            production_mean_cv_f1 = client.get_run(version.run_id).data.metrics.get("mean_cv_f1", 0)
             # check if the trained model outperforms the champion model
-            if best_f1 > production_f1:
-                logger.info(f"promoting new model to champion, new best f1: {best_f1}, old best f1: {production_f1}")
+            if best_mean_cv_f1 > production_mean_cv_f1:
+                logger.info(f"promoting new model to champion, new best f1: {best_mean_cv_f1}, old best f1: {production_mean_cv_f1}")
                 # promote the new current best model to champion
                 client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
         except:
@@ -168,7 +210,7 @@ def training(traning_args, callback=None):
 
     logger.info("best model is saved.")
 
-    logger.info("\nBest model (by F1-score):")
+    logger.info("\nBest model (by Mean CV F1):")
     logger.info(f"  Name     : {best_name}")
 
     joblib.dump(list(X.columns), FEATURES_PATH)

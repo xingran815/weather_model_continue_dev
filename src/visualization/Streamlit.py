@@ -146,7 +146,7 @@ if page == pages[1]:
     'using Airflow to automate the process: \n' \
     ' - calls Airflow DAGs every 10 minutes \n' \
     ' - the script calls the FastAPI endpoints in the model container in the following order: \n' \
-    ' - make dataset (chooses a random part of the original data to simulate changes in the data) \n' \
+    ' - make dataset (chooses a random of the original data (increases by 1 year in each run) to simulate changes in the data) \n' \
     ' - preprocess data\n' \
     ' - train model\n' )
 
@@ -182,7 +182,7 @@ if page == pages[2]:
     '- Scaling of numerical features by vector normalization\n')
 
 # Trigger the make dataset script to create new sample set
-    st.write('Pressing the button "Make dataset" randomly chooses 20% of the original data to create a new dataset')
+    st.write('Pressing the button "Make dataset" chooses a random percentage of the original data to create a new dataset')
     if st.button("Make dataset"):
         MODEL_API = os.getenv("MODEL_URI")
         if MODEL_API is not None:

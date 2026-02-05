@@ -42,6 +42,10 @@ services:
       - shared-models:/app/models
     environment:
       MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
+    deploy:
+      resources:
+        limits:
+          memory: 4G
   # Streamlit
   Streamlit:
     depends_on:

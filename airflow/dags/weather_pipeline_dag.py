@@ -9,7 +9,7 @@ import datetime
 DEFAULT_ARGS = {
     "owner": "airflow",
     "retries": 2,
-    "retry_delay": datetime.timedelta(seconds=60),
+    "retry_delay": datetime.timedelta(seconds=150),
     "start_date": datetime.datetime(2026, 1, 31),
 }
 
@@ -40,15 +40,14 @@ def weather_pipeline_dag():
     def task_make_dataset():
         duration = int(Variable.get('duration', default=2))
         if duration < 10:
-            Variable.set('duration', str(duration+1))
             sample_percent = 0.2
         else:
             # when the durations reaches the maximum, change the sample percentage
             sample_percent = round(random.uniform(0.1, 0.4), 2)
-            HttpHook(method="GET", http_conn_id="model_api").run(
-                endpoint="/make_dataset",
-                data={"duration": duration, "sample_percent": sample_percent},
-                )
+        HttpHook(method="GET", http_conn_id="model_api").run(
+            endpoint="/make_dataset",
+            data={"duration": duration, "sample_percent": sample_percent},
+            )
 
 
     task_preprocessing = HttpOperator(
@@ -69,10 +68,21 @@ def weather_pipeline_dag():
     )
 
 
+    @task(task_id='config_duration')
+    def task_config_duration():
+        # increment the duration by 1 year, when the training is successful
+        duration = int(Variable.get('duration', default=2))
+        if duration < 10:
+            Variable.set('duration', str(duration+1))
+        else:
+            Variable.set('duration', str(10))
+
+
     check_model_service >> \
     task_make_dataset() >> \
     task_preprocessing >> \
-    task_training
+    task_training >> \
+    task_config_duration()
 
 
 dag = weather_pipeline_dag()

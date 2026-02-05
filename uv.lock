@@ -1370,6 +1370,23 @@ wheels = [
 ]
 
 [[package]]
+name = "imbalanced-learn"
+version = "0.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "joblib" },
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "sklearn-compat" },
+    { name = "threadpoolctl" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c1/7d/f1384d3c0eefb5531b4dc05c191aba260f78e4d4bdd31a0c2a3394de5c8d/imbalanced_learn-0.14.1.tar.gz", hash = "sha256:46eeb5773a96b6fa92426356da66f3e4390a7ed8e715a633c6fb68ee4a3ccdcb", size = 1190412, upload-time = "2025-12-21T21:59:16.457Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/b5/56f1ceb568676c0231d12b2fed17ebfd606dd1f627e7372aaed5dd56bd97/imbalanced_learn-0.14.1-py3-none-any.whl", hash = "sha256:fcdff8d27870d6992ea3496230788b97ff98e24302e7f6c598701da525ae440f", size = 235365, upload-time = "2025-12-21T21:59:14.959Z" },
+]
+
+[[package]]
 name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3257,6 +3274,18 @@ wheels = [
 ]
 
 [[package]]
+name = "sklearn-compat"
+version = "0.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "scikit-learn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bb/23/89246376a9e6e9ee256c83145b30ccdf41a515e06152e406885c116e4187/sklearn_compat-0.1.5.tar.gz", hash = "sha256:1a0c3a2f384100e034def49ee5a6cfe984a826f79d032eb559f10445e012b02c", size = 130433, upload-time = "2025-12-21T14:54:17.391Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/60/08cb1b41563a0a8f26a72b8c5d1726986ab535fee67aa95541b2a2cc1dfa/sklearn_compat-0.1.5-py3-none-any.whl", hash = "sha256:dddd00c442027b6a2c2fd4a86667b804a7353cdb5093bfd0d5431f5e3c135fce", size = 20966, upload-time = "2025-12-21T14:54:16.349Z" },
+]
+
+[[package]]
 name = "smmap"
 version = "5.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3729,6 +3758,7 @@ dependencies = [
     { name = "greenlet" },
     { name = "h11" },
     { name = "idna" },
+    { name = "imbalanced-learn" },
     { name = "mlflow" },
     { name = "mysql-connector-python" },
     { name = "numpy" },
@@ -3762,6 +3792,7 @@ requires-dist = [
     { name = "greenlet", specifier = "==3.2.4" },
     { name = "h11", specifier = "==0.16.0" },
     { name = "idna", specifier = "==3.11" },
+    { name = "imbalanced-learn", specifier = ">=0.14.1" },
     { name = "mlflow", specifier = ">=3.6.0" },
     { name = "mysql-connector-python", specifier = "==9.1.0" },
     { name = "numpy", specifier = "==2.3.4" },
