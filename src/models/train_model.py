@@ -41,7 +41,6 @@ def training(traning_args, callback=None):
     else:
         experiment_id = experiment.experiment_id
     mlflow.set_experiment(experiment_id=experiment_id)
-    # mlflow.sklearn.autolog()
 
     if callback:
         callback(10, "Loading data...")
@@ -73,7 +72,7 @@ def training(traning_args, callback=None):
 
     # define cross-validation parameters
     cv_split = StratifiedKFold(n_splits=3, shuffle=True)
-    n_iter_search = 6
+    n_iter_search = 4
 
     # define parameter grids for each model
     param_grids = {
@@ -126,19 +125,16 @@ def training(traning_args, callback=None):
             base_models[name],
             param_grids[name],
             n_iter=n_iter_search,
-            cv=3,
+            cv=cv_split,
             scoring="f1",
             random_state=42,
             n_jobs=-1,
         )
         search.fit(X_train_np, y_train_np)
         model = search.best_estimator_
+        mean_cv_f1 = search.best_score_
         best_params[name] = search.best_params_
 
-        cv_scores = cross_val_score(
-            model, X_train_np, y_train_np, cv=cv_split, scoring="f1"
-        )
-        mean_cv_f1 = float(cv_scores.mean())
         logger.info(f"\nModel: {name} (Mean CV F1: {mean_cv_f1:.4f})")
 
         y_pred = model.predict(X_test_np)
