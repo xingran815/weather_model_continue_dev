@@ -3,7 +3,8 @@ WORKDIR /app
 COPY requirements.txt ./
 COPY src/data ./src/data
 COPY src/models ./src/models
-COPY .git ./git
+COPY .git ./.git
+COPY .dvc ./.dvc
 RUN apt-get update && apt-get install -y git && \
   rm -rf /var/lib/apt/lists/* && \
   pip install -r requirements.txt

@@ -1,7 +1,7 @@
 USE weather_db;
 SET sql_mode=''; -- needs to be activated
 -- Import data from CSV file into weather_data table
-LOAD DATA INFILE '/mysql/data/weatherAUS.csv'
+LOAD DATA INFILE '/mysql/data/raw/weatherAUS.csv'
 INTO TABLE weather_data
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
