@@ -12,7 +12,6 @@ from sklearn.model_selection import (
     train_test_split,
     RandomizedSearchCV,
     StratifiedKFold,
-    cross_val_score,
 )
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
@@ -21,6 +20,8 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 # define training
 def training(traning_args, callback=None):
     FILE = traning_args['processed_data_file']
+    RAW_DATA_FILE = traning_args['raw_data_file']
+    PROCESSED_DATA_FILE = traning_args['processed_data_file']
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
@@ -173,23 +174,28 @@ def training(traning_args, callback=None):
     if callback:
         callback(90, "Logging best model...")
 
+    # track and register the trained model via MLflow
     with mlflow.start_run(run_name="weather_model") as run:
-        # log best model metrics and parameters
+        # log best model's metrics, parameters and artifacts
         mlflow.log_params(best_params.get(best_name, {}))
         mlflow.log_metric("mean_cv_f1", best_mean_cv_f1)
         mlflow.log_metric("accuracy", best_acc)
         mlflow.log_metric("precision", best_prec)
         mlflow.log_metric("recall", best_rec)
         mlflow.log_metric("f1_score", best_f1)
-        # log best model
+        mlflow.log_artifact(RAW_DATA_FILE, artifact_path="sub_dataset")
+        mlflow.log_artifact(PROCESSED_DATA_FILE, artifact_path="preprocessed_dataset")
+        # log best model itself
         model_name = "best_AUS_weather_model"
         model_info = mlflow.sklearn.log_model(sk_model=best_model,
                                               name=f"best_model_{best_name.lower()}",
                                               input_example=X_train_np[:1],
                                               registered_model_name=model_name)
+        # add tags
         mlflow.set_tag("best_model_name", f"{best_name}")
         mlflow.set_tag("sample_percent", f"{traning_args['sample_percent']}")
         mlflow.set_tag("duration", f"{traning_args['duration']} years")
+        # promote the new model to champion if it outperforms
         client = MlflowClient()
         try:
             # fetch the champion model

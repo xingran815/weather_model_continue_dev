@@ -44,19 +44,35 @@ def weather_pipeline_dag():
         else:
             # when the durations reaches the maximum, change the sample percentage
             sample_percent = round(random.uniform(0.1, 0.4), 2)
-        HttpHook(method="GET", http_conn_id="model_api").run(
+        # create the sub-dataset
+        response = HttpHook(method="GET", http_conn_id="model_api").run(
             endpoint="/make_dataset",
             data={"duration": duration, "sample_percent": sample_percent},
             )
+        data = response.json()
+        raw_data_file = data['raw_data_file']
+        # version the data
+        response = HttpHook(method="GET", http_conn_id="model_api").run(
+            endpoint="/data-versioning",
+            data={"file_path": raw_data_file},
+        )
+        print(f"Raw data file is versioned: {raw_data_file}")
 
 
-    task_preprocessing = HttpOperator(
-        task_id="preprocessing",
-        http_conn_id="model_api",
-        endpoint="/preprocessing",
-        method="GET",
-        headers={},
-    )
+    @task(task_id='preprocessing')
+    def task_preprocessing():
+        # preprocess the data
+        response = HttpHook(method="GET", http_conn_id="model_api").run(
+            endpoint="/preprocessing",
+        )
+        data = response.json()
+        processed_data_file = data['processed_data_file']
+        # version the data
+        response = HttpHook(method="GET", http_conn_id="model_api").run(
+            endpoint="/data-versioning",
+            data={"file_path": processed_data_file},
+        )
+        print(f"Processed data file is versioned: {processed_data_file}")
 
 
     task_training = HttpOperator(
@@ -80,7 +96,7 @@ def weather_pipeline_dag():
 
     check_model_service >> \
     task_make_dataset() >> \
-    task_preprocessing >> \
+    task_preprocessing() >> \
     task_training >> \
     task_config_duration()
 

@@ -6,7 +6,7 @@ from src.data.make_dataset import make_dataset
 from src.data.preprocessing import preprocessing
 from dataclasses import dataclass
 from typing import Optional
-import mlflow
+import subprocess
 
 
 responses = {
@@ -86,7 +86,8 @@ def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[i
     global model_args
     try:
         model_args = make_dataset(sample_percent, duration)
-        return {'status': 'sub-dataset is created.'}
+        return {'status': 'sub-dataset is created.',
+                **model_args}
     except Exception as e:
         raise HTTPException(
             status_code=503,
@@ -98,7 +99,8 @@ def get_make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[i
 def get_preprocessing():
     try:
         preprocessing(model_args)
-        return {'status': 'data is preprocessed.'}
+        return {'status': 'data is preprocessed.',
+                **model_args}
     except Exception as e:
         raise HTTPException(
             status_code=503,
@@ -141,6 +143,18 @@ def get_training(background_tasks: BackgroundTasks):
         raise
     except Exception as e:
         return {'error': str(e)}
+    
+@api.get('/data-versioning', name='Versioning the data', responses=responses)
+def get_data_versioning(file_path: str):
+    try:
+        # run the dvc versioning command dvc add <file_path> && dvc push
+        subprocess.run(['dvc', 'add', file_path], check=True)
+        return {'status': f'data versioning is completed for {file_path}.'}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f'Failed to version data: {str(e)}'
+        )
 
 # get status of training and prediction
 @api.get('/training-status', name='Get Training Status', responses=responses)
