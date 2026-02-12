@@ -7,18 +7,23 @@ from typing import Optional
 from src.config import settings
 
 
-# Definition of the database created with MySQL Docker container
-def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10) -> dict:
-    '''
-    Connects to the MySQL database, samples a random subset of 20 % of the weather data,
-    and saves it as a CSV file in the specified output directory.
-    args:
-        sample_percent (int): Percentage of the dataset to sample. default is 20%.
-        duration (int): Duration of the dataset in years. default is 10 years.
-    Returns:
-        dict object with output file, date, sample percentage and duration
+def make_dataset(
+    sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10
+) -> dict[str, Optional[str] | float | int]:
+    """
+    Create a sub-dataset from the MySQL weather table and save as CSV.
 
-    '''
+    Connects to the MySQL database, samples a random subset of the weather data
+    within the given duration (years), and saves it as a CSV in data/raw.
+
+    Args:
+        sample_percent: Fraction of rows to sample (e.g. 0.2 for 20%). Default 0.2.
+        duration: Number of years of data from 2008-01-01. Default 10.
+
+    Returns:
+        Dict with keys: raw_data_file, processed_data_file (None), date,
+        sample_percent, duration.
+    """
     TABLE_NAME = 'weather_data'
     NEW_TABLE_NAME = 'weather_subset'
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -62,22 +67,26 @@ def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] 
     end_date = end_date.strftime('%Y-%m-%d')
     print(f"Start date: {start_date}, End date: {end_date}, Sample percentage: {sample_percent}")
 
-    # Filter random x % from the data
+    # Filter random x % from the data (use parameterized query to avoid SQL injection)
     with engine.connect() as conn:
         total_rows = conn.execute(text(f"SELECT COUNT(*) FROM {TABLE_NAME}")).scalar()
         sample_size = int(total_rows * sample_percent)
-        conn.execute(text(
-            f"""
-            CREATE TABLE {NEW_TABLE_NAME} AS
-            SELECT *
-            FROM {TABLE_NAME}
-            WHERE Date >= '{start_date}' and Date <= '{end_date}'
-            ORDER BY RAND()
-            LIMIT {sample_size}
-            """
-        ))
+        conn.execute(
+            text(
+                f"""
+                CREATE TABLE {NEW_TABLE_NAME} AS
+                SELECT *
+                FROM {TABLE_NAME}
+                WHERE Date >= :start_date AND Date <= :end_date
+                ORDER BY RAND()
+                LIMIT :sample_size
+                """
+            ),
+            {"start_date": start_date, "end_date": end_date, "sample_size": sample_size},
+        )
+        conn.commit()
     
-    # Validatw the new table creation
+    # Validate the new table creation
     with engine.connect() as conn:
         result = conn.execute(text(f"SELECT COUNT(*) FROM {NEW_TABLE_NAME}")).fetchone()
         print(result)   

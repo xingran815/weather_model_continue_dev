@@ -1,27 +1,47 @@
-import os
-import joblib
-import pandas as pd
-import mlflow
-from mlflow.tracking import MlflowClient
+"""Training pipeline: hyperparameter search, model selection, and MLflow logging."""
+from __future__ import annotations
+
 import logging
+import os
 from io import StringIO
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from typing import Any, Callable
+
+import joblib
+import mlflow
+import pandas as pd
+from mlflow.tracking import MlflowClient
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import (
-    train_test_split,
-    RandomizedSearchCV,
-    StratifiedKFold,
-)
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+
+from src.models.training_args import TrainingArgs
 
 
-###################################################
-# define training
-def training(traning_args, callback=None):
-    FILE = traning_args['processed_data_file']
-    RAW_DATA_FILE = traning_args['raw_data_file']
-    PROCESSED_DATA_FILE = traning_args['processed_data_file']
+def training(
+    training_args: TrainingArgs | dict[str, Any],
+    callback: Callable[[int, str], None] | None = None,
+) -> None:
+    """
+    Train multiple classifiers, select the best by mean CV F1, and register it in MLflow.
+
+    Loads processed data, runs RandomizedSearchCV for KNeighbors, DecisionTree,
+    RandomForest, and GradientBoosting, then logs the best model and promotes it
+    to the MLflow 'champion' alias if it outperforms the current champion.
+
+    Args:
+        training_args: Training configuration (paths, sample_percent, duration).
+            Can be a TrainingArgs instance or a dict with the same keys.
+        callback: Optional progress callback(progress: int, message: str).
+    """
+    if isinstance(training_args, dict):
+        training_args = TrainingArgs(**training_args)
+    if training_args.processed_data_file is None:
+        raise ValueError("processed_data_file must be set (run preprocessing first)")
+    FILE = training_args.processed_data_file
+    RAW_DATA_FILE = training_args.raw_data_file
+    PROCESSED_DATA_FILE = training_args.processed_data_file
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = os.path.join(THIS_DIR, "../../models")
     FEATURES_PATH = os.path.join(MODEL_DIR, "features.pkl")
@@ -60,7 +80,7 @@ def training(traning_args, callback=None):
     if callback:
         callback(20, "Splitting data...")
 
-    # Splot dataset into test aund train set
+    # Split dataset into test and train set
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, stratify=y
     )
@@ -193,8 +213,8 @@ def training(traning_args, callback=None):
                                               registered_model_name=model_name)
         # add tags
         mlflow.set_tag("best_model_name", f"{best_name}")
-        mlflow.set_tag("sample_percent", f"{traning_args['sample_percent']}")
-        mlflow.set_tag("duration", f"{traning_args['duration']} years")
+        mlflow.set_tag("sample_percent", f"{training_args.sample_percent}")
+        mlflow.set_tag("duration", f"{training_args.duration} years")
         # promote the new model to champion if it outperforms
         client = MlflowClient()
         try:
@@ -206,8 +226,9 @@ def training(traning_args, callback=None):
                 logger.info(f"promoting new model to champion, new best f1: {best_mean_cv_f1}, old best f1: {production_mean_cv_f1}")
                 # promote the new current best model to champion
                 client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
-        except:
+        except Exception as e:
             # if no champion model exists, create one
+            logger.debug("No existing champion alias: %s", e)
             client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
 
     logger.info("best model is saved.")

@@ -1,18 +1,39 @@
-import os
-import mlflow
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-import joblib
-import pandas as pd
-from typing import Optional
+"""Load champion model from MLflow, run predictions on processed data, optionally evaluate."""
+from __future__ import annotations
+
 import logging
+import os
 from io import StringIO
+from typing import Callable, Optional
+
+import joblib
+import mlflow
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
 
-##################################################
+def predict(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    callback: Optional[Callable[[int, str], None]] = None,
+) -> None:
+    """
+    Load the champion model from MLflow, predict RainTomorrow for the input data, and save.
 
-def predict(input_path: Optional[str] = None, 
-            output_path: Optional[str] = None,
-            callback: Optional[callable] = None):
+    Optionally evaluates against ground truth if RainTomorrow is present, and reports
+    metrics. Writes predictions to a CSV with a RainTomorrow_pred column.
+
+    Args:
+        input_path: Path to preprocessed CSV. Defaults to weatherAUS_20percent_preprocessed.csv.
+        output_path: Path for output CSV with predictions. Defaults to weather_predictions.csv.
+        callback: Optional progress callback(progress: int, message: str).
+    """
     log_stream = StringIO()
     logger = logging.getLogger("predict_model")
     logger.setLevel(logging.INFO)
@@ -70,7 +91,7 @@ def predict(input_path: Optional[str] = None,
     if callback:
         callback(80, "Evaluating...")
 
-    # If labals exist, print metrics
+    # If labels exist, log metrics
     if y_true is not None:
         acc = accuracy_score(y_true, y_pred)
         prec = precision_score(y_true, y_pred)
@@ -104,6 +125,4 @@ def predict(input_path: Optional[str] = None,
 
     if callback:
         callback(100, log_stream.getvalue())
-
-######################################################
 

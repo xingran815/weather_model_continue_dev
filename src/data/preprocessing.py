@@ -1,23 +1,45 @@
-import pandas as pd
-import numpy as np
+"""Data preprocessing: normalization, missing values, encoding for weather dataset."""
+from __future__ import annotations
+
 import os
+from typing import Any
+
+import numpy as np
+import pandas as pd
 
 
-# define vector normalization
-def vector_normalize(X):
-    ''' Normalize the data using vector normalization
-    '''
-    X_np= np.nan_to_num(X.values.astype(float))
+def vector_normalize(X: pd.DataFrame) -> pd.DataFrame:
+    """
+    Normalize the data using vector (L2) normalization per row.
+
+    Replaces NaN with zero before normalizing. Rows with zero norm are scaled by 1e-10
+    to avoid division by zero.
+
+    Args:
+        X: DataFrame of numeric columns to normalize.
+
+    Returns:
+        DataFrame with same columns, L2-normalized per row.
+    """
+    X_np = np.nan_to_num(X.values.astype(float))
     norms = np.linalg.norm(X_np, axis=1, keepdims=True)
-    # avoid dividing zero
     norms[norms == 0] = 1e-10
-    X_normalized = X_np /norms
+    X_normalized = X_np / norms
     return pd.DataFrame(X_normalized, columns=X.columns)
 
-# define preprocesing
-def preprocessing(model_args):
-    INPUT_FILE = model_args['raw_data_file']
-    DATE = model_args['date']
+
+def preprocessing(model_args: dict[str, Any]) -> None:
+    """
+    Load raw CSV, handle missing values, normalize numerics, encode categories, and save.
+
+    Reads raw_data_file from model_args, writes processed CSV to data/processed, and
+    sets model_args['processed_data_file'] to the output path.
+
+    Args:
+        model_args: Dict with 'raw_data_file' and 'date'; mutated to add 'processed_data_file'.
+    """
+    INPUT_FILE = model_args["raw_data_file"]
+    DATE = model_args["date"]
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     df= pd.read_csv(INPUT_FILE).dropna(how='all')
     # correct import
@@ -50,10 +72,9 @@ def preprocessing(model_args):
     for i in num_cols:
         df[i].fillna(df[i].median(), inplace=True)
     
-    # vector normalization for numerical columns
-
-    X_norm = vector_normalize(df[num_cols])  # falls noch NaNs drin sind
-    X_norm.index = df.index  # sicherstellen, dass Index passt
+    # Vector normalization for numerical columns
+    X_norm = vector_normalize(df[num_cols])  # in case there are still NaNs
+    X_norm.index = df.index  # ensure index aligns
     df[num_cols] = X_norm
 
     # Encode categorical features with get_dummies
@@ -84,6 +105,6 @@ def preprocessing(model_args):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     OUTPUT_FILE = f'{OUTPUT_DIR}/weatherAUS_preprocessed_{DATE}.csv'
     df_encoded.to_csv(OUTPUT_FILE, index=False)
-    print("Preprocessing done")
+    # Preprocessing done; model_args updated with processed_data_file
 
-    model_args['processed_data_file'] = OUTPUT_FILE
+    model_args["processed_data_file"] = OUTPUT_FILE
