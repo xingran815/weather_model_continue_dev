@@ -179,7 +179,11 @@ if page == pages[2]:
     if st.button("Make dataset"):
         MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
         if MODEL_API:
-            response = requests.get(f"{MODEL_API}/make_dataset")
+            response = requests.post(
+                f"{MODEL_API}/make_dataset",
+                json={"sample_percent": 0.2, "duration": 10},
+                timeout=60,
+            )
             if response.status_code == 200:
                 st.success("Sub-dataset created!")
             else:
@@ -190,7 +194,11 @@ if page == pages[2]:
     if st.button("Preprocess"):
         MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
         if MODEL_API:
-            response = requests.get(f"{MODEL_API}/preprocessing")
+            response = requests.post(
+                f"{MODEL_API}/preprocessing",
+                json={},
+                timeout=60,
+            )
             if response.status_code == 200:
                 st.success("Preprocessing done!")
             else:
@@ -217,7 +225,7 @@ if page == pages[3]:
         MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
         if MODEL_API:
             # Start training
-            response = requests.get(f"{MODEL_API}/training")
+            response = requests.post(f"{MODEL_API}/training", json={}, timeout=60)
             if response.status_code == 200:
                 training_status = st.success("Training started! Please wait...")
                 
@@ -275,7 +283,7 @@ if page == pages[4]:
     if st.button("Predict"):
         MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
         if MODEL_API:
-            response = requests.get(f"{MODEL_API}/predict")
+            response = requests.post(f"{MODEL_API}/predict", json={}, timeout=60)
             if response.status_code == 200:
                 predict_status = st.success("Start to predict!")
                 # Progress bar and status text
