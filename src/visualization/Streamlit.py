@@ -9,23 +9,16 @@ from sqlalchemy import create_engine
 import os
 import time
 
+from src.config import settings
+
 ###***************************************************************************************************************
 
 # read data from the sql container
-MYSQL_USER = "root"
-MYSQL_PASSWORD = "root"
-MYSQL_HOST = "weather_sql_container"  # Network? eg my_network
-MYSQL_PORT = 3306
-MYSQL_DB = "weather_db"
-TABLE_NAME = 'weather_data'
+TABLE_NAME = "weather_data"
 engine = create_engine(
-         f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
-         )
-
-# SQL-Query 
+    f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{settings.mysql_host}:{settings.mysql_port}/{settings.mysql_db}"
+)
 query = f"SELECT * FROM {TABLE_NAME}"
-
-# Load in Dataframe
 df = pd.read_sql(query, engine)
 
 
@@ -184,8 +177,8 @@ if page == pages[2]:
 # Trigger the make dataset script to create new sample set
     st.write('Pressing the button "Make dataset" chooses a random percentage of the original data to create a new dataset')
     if st.button("Make dataset"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
+        MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
+        if MODEL_API:
             response = requests.get(f"{MODEL_API}/make_dataset")
             if response.status_code == 200:
                 st.success("Sub-dataset created!")
@@ -195,8 +188,8 @@ if page == pages[2]:
 # Preprocess the last created sample set
     st.write('Pressing the button "Preprocess" preprocesses the newest dataset')
     if st.button("Preprocess"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
+        MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
+        if MODEL_API:
             response = requests.get(f"{MODEL_API}/preprocessing")
             if response.status_code == 200:
                 st.success("Preprocessing done!")
@@ -221,8 +214,8 @@ if page == pages[3]:
 # Start modelling with button
     st.write('Pressing the button "Train model" starts the training process with the newest dataset')
     if st.button("Train model"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
+        MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
+        if MODEL_API:
             # Start training
             response = requests.get(f"{MODEL_API}/training")
             if response.status_code == 200:
@@ -280,8 +273,8 @@ if page == pages[4]:
 # Start Prediction with button
     st.write('Pressing the button "Predict" starts the prediction process with the newest dataset')
     if st.button("Predict"):
-        MODEL_API = os.getenv("MODEL_URI")
-        if MODEL_API is not None:
+        MODEL_API = settings.model_api_uri or os.getenv("MODEL_API_URI") or os.getenv("MODEL_URI")
+        if MODEL_API:
             response = requests.get(f"{MODEL_API}/predict")
             if response.status_code == 200:
                 predict_status = st.success("Start to predict!")

@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: docker_images/Dockerfile_sql
     container_name: weather_sql_container
+    env_file: .env
     networks:
       - my_network_by_compose
     ports:
@@ -17,6 +18,7 @@ services:
       context: .
       dockerfile: docker_images/Dockerfile_mlflow
     container_name: weather_mlflow_container
+    env_file: .env
     networks:
       - my_network_by_compose
     ports:
@@ -25,7 +27,7 @@ services:
       - shared-models:/app/models
   # model
   model:
-    depends_on: 
+    depends_on:
       - MLFlow
       - mysql
     image: weather_model:latest
@@ -33,6 +35,7 @@ services:
       context: .
       dockerfile: docker_images/Dockerfile_model
     container_name: weather_model_container
+    env_file: .env
     networks:
       - my_network_by_compose
     ports:
@@ -41,7 +44,7 @@ services:
       - shared-data:/app/data
       - shared-models:/app/models
     environment:
-      MLFLOW_TRACKING_URI: 'http://weather_mlflow_container:8080'
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-http://weather_mlflow_container:8080}
     deploy:
       resources:
         limits:
@@ -55,10 +58,11 @@ services:
       context: .
       dockerfile: docker_images/Dockerfile_streamlit
     container_name: weather_streamlit_container
+    env_file: .env
     networks:
       - my_network_by_compose
     environment:
-      MODEL_URI: 'http://weather_model_container:8000'
+      MODEL_API_URI: ${MODEL_API_URI:-http://weather_model_container:8000}
     volumes:
       - shared-data:/app/data:ro
     ports:
@@ -73,13 +77,14 @@ services:
       context: .
       dockerfile: docker_images/Dockerfile_airflow
     container_name: weather_airflow_container
+    env_file: .env
     networks:
       - my_network_by_compose
     ports:
       - "8081:8080"
     command: airflow standalone
     environment:
-      AIRFLOW_CONN_MODEL_API: 'http://weather_model_container:8000'
+      AIRFLOW_CONN_MODEL_API: ${MODEL_API_URI:-http://weather_model_container:8000}
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API_AUTH__JWT_ISSUER: 'apache-airflow'
       AIRFLOW__API_AUTH__JWT_AUDIENCE: 'apache-airflow'

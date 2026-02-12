@@ -1,11 +1,7 @@
 FROM mysql:8.0
 
-# Environment variables for MySQL configuration
-ENV MYSQL_ROOT_PASSWORD=root
-ENV MYSQL_DATABASE=weather_db
-ENV MYSQL_ALLOW_EMPTY_PASSWORD=no
-ENV MYSQL_HOST=weather_sql_container
-
+# MySQL config (MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, etc.) is provided via
+# docker-compose env_file: .env at runtime.
 
 WORKDIR /mysql
 COPY .dvc ./.dvc

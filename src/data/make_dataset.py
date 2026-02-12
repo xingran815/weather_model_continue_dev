@@ -4,6 +4,8 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from typing import Optional
 
+from src.config import settings
+
 
 # Definition of the database created with MySQL Docker container
 def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10) -> dict:
@@ -17,13 +19,6 @@ def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] 
         dict object with output file, date, sample percentage and duration
 
     '''
-    MYSQL_USER = "root"
-    MYSQL_PASSWORD = "root"
-    MYSQL_HOST = "weather_sql_container" 
-    MYSQL_PORT = 3306
-    MYSQL_DB = "weather_db"
-    
-    
     TABLE_NAME = 'weather_data'
     NEW_TABLE_NAME = 'weather_subset'
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -33,7 +28,7 @@ def make_dataset(sample_percent: Optional[float] = 0.2, duration: Optional[int] 
     OUTPUT_FILE = f'{OUTPUT_DIR}/weather_subset_{DATE}.csv'
     
     engine = create_engine(
-        f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
+        f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{settings.mysql_host}:{settings.mysql_port}/{settings.mysql_db}"
     )
     
     #filter query eg.loacation (Canberra, Sydney, Melbourne, Brisbane, Adelaide)
