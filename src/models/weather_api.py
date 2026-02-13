@@ -2,15 +2,19 @@
 """FastAPI application for weather forecasting: dataset creation, preprocessing, training, prediction."""
 from __future__ import annotations
 
+import logging
 import subprocess
 import threading
+import time
+import uuid
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.data.make_dataset import make_dataset
+from src.logging_config import clear_correlation_id, configure_logging, set_correlation_id
 from src.data.preprocessing import preprocessing
 from src.models.predict_model import predict
 from src.models.train_model import training
@@ -31,6 +35,42 @@ api = FastAPI(
     """,
     version="0.1.0",
 )
+
+configure_logging()
+logger = logging.getLogger(__name__)
+
+
+@api.middleware("http")
+async def logging_middleware(request: Request, call_next):
+    """Attach correlation ID and emit request lifecycle logs."""
+    correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
+    set_correlation_id(correlation_id)
+    start_time = time.perf_counter()
+    logger.info(
+        "Request started",
+        extra={"method": request.method, "path": request.url.path},
+    )
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception(
+            "Request failed",
+            extra={"method": request.method, "path": request.url.path},
+        )
+        raise
+    finally:
+        elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+        logger.info(
+            "Request finished",
+            extra={
+                "method": request.method,
+                "path": request.url.path,
+                "duration_ms": elapsed_ms,
+            },
+        )
+        clear_correlation_id()
+    response.headers["X-Correlation-ID"] = correlation_id
+    return response
 
 
 @dataclass
@@ -164,6 +204,7 @@ def wrapper_train_model(training_args: TrainingArgs | dict[str, Any]) -> None:
         training(training_args, callback=update_training_progress)
         store.set_training_status("completed")
     except Exception as e:
+        logger.exception("Training task failed")
         store.set_training_status("failed", message=str(e))
         raise e
 
@@ -175,6 +216,7 @@ def wrapper_predict(predict_args: dict[str, Any]) -> None:
         predict(predict_args["processed_data_file"], callback=update_predict_progress)
         store.set_predict_status("completed")
     except Exception as e:
+        logger.exception("Prediction task failed")
         store.set_predict_status("failed", message=str(e))
         raise e
 
@@ -201,6 +243,7 @@ def post_make_dataset(body: MakeDatasetRequest) -> MakeDatasetResponse:
         store.set_model_args(result)
         return MakeDatasetResponse(status="sub-dataset is created.", **result)
     except Exception as e:
+        logger.exception("Failed to create sub-dataset")
         raise HTTPException(
             status_code=503, detail=f"Failed to create sub-dataset: {str(e)}"
         ) from e
@@ -225,6 +268,7 @@ def post_preprocessing() -> PreprocessingResponse:
         store.set_model_args(model_args)
         return PreprocessingResponse(status="data is preprocessed.", **model_args)
     except Exception as e:
+        logger.exception("Failed to preprocess data")
         raise HTTPException(
             status_code=503, detail=f"Failed to preprocess data: {str(e)}"
         ) from e
@@ -262,6 +306,7 @@ def post_predict(background_tasks: BackgroundTasks) -> PredictResponse:
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to start prediction")
         raise HTTPException(status_code=503, detail=str(e))
 
 
@@ -291,6 +336,7 @@ def post_training(background_tasks: BackgroundTasks) -> TrainingResponse:
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Failed to start training")
         raise HTTPException(status_code=503, detail=str(e))
 
 
@@ -306,6 +352,7 @@ def post_data_versioning(body: DataVersioningRequest) -> DataVersioningResponse:
         subprocess.run(["dvc", "add", body.file_path], check=True)
         return DataVersioningResponse(status=f"data versioning is completed for {body.file_path}.")
     except Exception as e:
+        logger.exception("Failed to version data")
         raise HTTPException(
             status_code=503, detail=f"Failed to version data: {str(e)}"
         ) from e

@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta
+import logging
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 from typing import Optional
 
 from src.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def make_dataset(
@@ -65,7 +68,14 @@ def make_dataset(
     end_date = start_date + timedelta(days=365 * duration)
     start_date = start_date.strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
-    print(f"Start date: {start_date}, End date: {end_date}, Sample percentage: {sample_percent}")
+    logger.info(
+        "Sampling window prepared",
+        extra={
+            "start_date": start_date,
+            "end_date": end_date,
+            "sample_percent": sample_percent,
+        },
+    )
 
     # Filter random x % from the data (use parameterized query to avoid SQL injection)
     with engine.connect() as conn:
@@ -89,7 +99,11 @@ def make_dataset(
     # Validate the new table creation
     with engine.connect() as conn:
         result = conn.execute(text(f"SELECT COUNT(*) FROM {NEW_TABLE_NAME}")).fetchone()
-        print(result)   
+        row_count = result[0] if result is not None else 0
+        logger.info(
+            "Sample table created",
+            extra={"table_name": NEW_TABLE_NAME, "row_count": row_count},
+        )
     
     
     df = pd.read_sql(f"SELECT * FROM {NEW_TABLE_NAME}", engine)
