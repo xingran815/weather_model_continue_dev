@@ -1,12 +1,7 @@
 """Tests for data validation: schema and value checks."""
 from __future__ import annotations
 
-import os
-from typing import Any
-
-import numpy as np
 import pandas as pd
-import pytest
 
 
 class TestDataValidation:

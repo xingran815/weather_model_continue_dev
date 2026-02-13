@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
 import logging
 import os
+from datetime import datetime, timedelta
+
 import pandas as pd
 from sqlalchemy import create_engine, text
-from typing import Optional
 
 from src.config import settings
 
@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 def make_dataset(
-    sample_percent: Optional[float] = 0.2, duration: Optional[int] = 10
-) -> dict[str, Optional[str] | float | int]:
+    sample_percent: float | None = 0.2, duration: int | None = 10
+) -> dict[str, str | None | float | int]:
     """
     Create a sub-dataset from the MySQL weather table and save as CSV.
 
@@ -30,15 +30,15 @@ def make_dataset(
     TABLE_NAME = 'weather_data'
     NEW_TABLE_NAME = 'weather_subset'
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-    OUTPUT_DIR= os.path.join(THIS_DIR, "../../data/raw") 
+    OUTPUT_DIR= os.path.join(THIS_DIR, "../../data/raw")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     DATE = datetime.now().strftime("%Y%m%d_%H%M")
     OUTPUT_FILE = f'{OUTPUT_DIR}/weather_subset_{DATE}.csv'
-    
+
     engine = create_engine(
         f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{settings.mysql_host}:{settings.mysql_port}/{settings.mysql_db}"
     )
-    
+
     #filter query eg.loacation (Canberra, Sydney, Melbourne, Brisbane, Adelaide)
     '''
     all locations:
@@ -53,8 +53,8 @@ def make_dataset(
      'Uluru']
      '''
     #query = f"SELECT {', '.join(columns_to_load)} FROM {TABLE_NAME} WHERE Location='Sydney'"
-    
-    
+
+
    # Drop the new table if it already exists
     with engine.connect() as conn:
         conn.execute(text(
@@ -62,7 +62,7 @@ def make_dataset(
             DROP TABLE IF EXISTS {NEW_TABLE_NAME};
             """
         ))
-    
+
     # Calculate the start and end date of the dataset
     start_date = datetime(year=2008, month=1, day=1)
     end_date = start_date + timedelta(days=365 * duration)
@@ -95,7 +95,7 @@ def make_dataset(
             {"start_date": start_date, "end_date": end_date, "sample_size": sample_size},
         )
         conn.commit()
-    
+
     # Validate the new table creation
     with engine.connect() as conn:
         result = conn.execute(text(f"SELECT COUNT(*) FROM {NEW_TABLE_NAME}")).fetchone()
@@ -104,10 +104,10 @@ def make_dataset(
             "Sample table created",
             extra={"table_name": NEW_TABLE_NAME, "row_count": row_count},
         )
-    
-    
+
+
     df = pd.read_sql(f"SELECT * FROM {NEW_TABLE_NAME}", engine)
-    
+
     # Save the sampled data to a CSV file
     df.to_csv(OUTPUT_FILE, index=False)
 

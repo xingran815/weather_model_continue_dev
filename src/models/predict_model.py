@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from io import StringIO
-from typing import Callable, Optional
 
 import joblib
 import mlflow
@@ -19,9 +19,9 @@ from sklearn.metrics import (
 
 
 def predict(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    callback: Optional[Callable[[int, str], None]] = None,
+    input_path: str | None = None,
+    output_path: str | None = None,
+    callback: Callable[[int, str], None] | None = None,
 ) -> None:
     """
     Load the champion model from MLflow, predict RainTomorrow for the input data, and save.
@@ -105,13 +105,13 @@ def predict(
         logger.info(f"  F1-score : {f1}")
 
         cm =confusion_matrix(y_true, y_pred)
-        labels = ["No Rain", "Rain"] 
-        clabels = ["No Rain Pred.", "Rain Pred."] 
+        labels = ["No Rain", "Rain"]
+        clabels = ["No Rain Pred.", "Rain Pred."]
         df_cm = pd.DataFrame(cm, index=labels, columns=clabels)
 
         logger.info("\nConfusion Matrix:")
         logger.info(df_cm.to_string())
-        
+
     else:
         logger.info("No RainTomorrow column found")
 

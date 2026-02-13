@@ -6,7 +6,6 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
-import pytest
 
 from src.data.make_dataset import make_dataset
 

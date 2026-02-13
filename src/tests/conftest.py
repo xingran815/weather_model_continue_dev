@@ -1,17 +1,14 @@
 """Shared fixtures for pytest tests across the weather prediction project."""
 from __future__ import annotations
 
-import os
-import tempfile
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
 
 
 @pytest.fixture

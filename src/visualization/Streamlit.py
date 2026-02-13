@@ -1,13 +1,14 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from graphviz import Digraph
-import requests
-from sqlalchemy import create_engine
 import os
 import time
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import requests
+import seaborn as sns
+import streamlit as st
+from graphviz import Digraph
+from sqlalchemy import create_engine
 
 from src.config import settings
 
@@ -28,7 +29,7 @@ st.title("Rain in Australia :partly_sunny:")
 st.sidebar.title("Table of Contents")
 
 pages = ["Introduction", "Automation", "Preprocessing :date:",
-         "Modelling :chart_with_downwards_trend:", 
+         "Modelling :chart_with_downwards_trend:",
          'Prediction :chart_with_upwards_trend:', 'Conclusion:grey_exclamation:']
 page = st.sidebar.radio("Go to:", pages)
 
@@ -62,7 +63,7 @@ if page == pages[0]:
     plt.title('Rain Tomorrow')
     plt.xticks(rotation=45)
     plt.xlabel('')
-    st.pyplot(fig);
+    st.pyplot(fig)
 
     st.write('If it rains today, there is 50% chance that it also rains tomorrow. If it does not rain today, ' \
     'it will most likely also not rain tomorrow.')
@@ -71,7 +72,7 @@ if page == pages[0]:
     fig, ax = plt.subplots()
     sns.countplot(data=df, x='RainToday', hue='RainTomorrow')
     plt.title("Countplot RainTomorrow grouped by RainToday")
-    st.pyplot(fig);
+    st.pyplot(fig)
 
 # Show missing values in % by klicking the checkbox
     if st.checkbox(" **Show missing values**"):
@@ -79,7 +80,7 @@ if page == pages[0]:
         st.dataframe(np.round(df.isna().sum()/len(df)*100).sort_values(ascending=False),width=200)
 
 
-# Plot target only for one location    
+# Plot target only for one location
     cats = df.Location.unique()
     cat_choice = st.selectbox("Select a Location:", cats)
 
@@ -98,7 +99,7 @@ if page == pages[1]:
 
 # Create Diagramm for project structure
     dot = Digraph()
- 
+
 # adding knots
 
     dot.node("A","Database (SQL)",style="filled",fillcolor="lightblue", color='blue')
@@ -120,7 +121,7 @@ if page == pages[1]:
 
 # Add Part about Dockerisation
     st.subheader("Dockerisation")
-    st.write( 
+    st.write(
     'five docker containers: Airflow, MySQL, MLFlow, Streamlit and model services \n' \
     '- Airflow container for automating the process \n' \
     '- MySQL container hosts all the raw data \n' \
@@ -135,7 +136,7 @@ if page == pages[1]:
 
 # Add Part about Automation with Airflow
     st.subheader("Automation")
-    st.write( 
+    st.write(
     'using Airflow to automate the process: \n' \
     ' - calls Airflow DAGs every 10 minutes \n' \
     ' - the script calls the FastAPI endpoints in the model container in the following order: \n' \
@@ -143,9 +144,9 @@ if page == pages[1]:
     ' - preprocess data\n' \
     ' - train model\n' )
 
-# Add Part about MySQL 
+# Add Part about MySQL
     st.subheader("MySQL Database")
-    st.write( 
+    st.write(
     'The MySQL database container hosts the raw data. The data is stored in a table called weather_data: \n' \
     '- the process takes the big weatherAUS.cvs from this source: https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package?resource=download \n' \
     '- and converts it into a SQL database by creating first an empty tabel with the column definition and then import the data. \n' \
@@ -158,11 +159,11 @@ if page == pages[1]:
 ### Page 3: Preprocessing
 
 if page == pages[2]:
-    
-# Add Preprocessing steps  
+
+# Add Preprocessing steps
     st.subheader("Preprocessing Steps")
 
-    st.write( 
+    st.write(
     '- delete features with over 10% of missing values \n' \
     '- replace Nans for categorical variables with mode \n' \
     '- replace Nans for numerical variables with median\n' \
@@ -203,7 +204,7 @@ if page == pages[2]:
                 st.success("Preprocessing done!")
             else:
                 st.error("Failed to preprocess.")
-    
+
 ###**************************************************************************************************************
 ### Page 4: Modelling
 
@@ -228,11 +229,11 @@ if page == pages[3]:
             response = requests.post(f"{MODEL_API}/training", json={}, timeout=60)
             if response.status_code == 200:
                 training_status = st.success("Training started! Please wait...")
-                
+
                 # Progress bar and status text
                 progress_bar = st.progress(0)
                 status_text = st.empty()
-                
+
                 while True:
                     try:
                         status_response = requests.get(f"{MODEL_API}/training-status")
@@ -241,11 +242,11 @@ if page == pages[3]:
                             status = status_data.get("status")
                             progress = status_data.get("progress", 0)
                             message = status_data.get("message", "")
-                            
+
                             # Update UI
                             progress_bar.progress(progress)
                             status_text.text(f"Status: {status} - {message}")
-                            
+
                             if status == "completed":
                                 st.success("Training completed successfully!")
                                 status_text.empty()
@@ -262,7 +263,7 @@ if page == pages[3]:
                     except Exception as e:
                         st.error(f"Connection error: {e}")
                         break
-                        
+
                     time.sleep(1)
             else:
                 st.error("Failed to start training.")
@@ -289,7 +290,7 @@ if page == pages[4]:
                 # Progress bar and status text
                 progress_bar = st.progress(0)
                 status_text = st.empty()
-                
+
                 while True:
                     try:
                         status_response = requests.get(f"{MODEL_API}/predict-status")
@@ -298,11 +299,11 @@ if page == pages[4]:
                             status = status_data.get("status")
                             progress = status_data.get("progress", 0)
                             message = status_data.get("message", "")
-                            
+
                             # Update UI
                             progress_bar.progress(progress)
                             status_text.text(f"Status: {status} - {message}")
-                            
+
                             if status == "completed":
                                 st.success("Prediction completed successfully!")
                                 status_text.empty()
@@ -319,7 +320,7 @@ if page == pages[4]:
                     except Exception as e:
                         st.error(f"Connection error: {e}")
                         break
-                        
+
                     time.sleep(1)
             else:
                 st.error("Failed to predict.")

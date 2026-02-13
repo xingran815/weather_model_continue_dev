@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from io import StringIO
-from typing import Any, Callable
+from typing import Any
 
 import joblib
 import mlflow
@@ -74,7 +75,7 @@ def training(
     if "Unnamed: 0" in df.columns:
         df = df.drop(columns=["Unnamed: 0"])
 
-    y = df["RainTomorrow"].astype(int)   
+    y = df["RainTomorrow"].astype(int)
     X = df.drop(columns=["RainTomorrow"])
 
     if callback:
@@ -195,7 +196,7 @@ def training(
         callback(90, "Logging best model...")
 
     # track and register the trained model via MLflow
-    with mlflow.start_run(run_name="weather_model") as run:
+    with mlflow.start_run(run_name="weather_model"):
         # log best model's metrics, parameters and artifacts
         mlflow.log_params(best_params.get(best_name, {}))
         mlflow.log_metric("mean_cv_f1", best_mean_cv_f1)

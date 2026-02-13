@@ -8,14 +8,14 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.data.make_dataset import make_dataset
-from src.logging_config import clear_correlation_id, configure_logging, set_correlation_id
 from src.data.preprocessing import preprocessing
+from src.logging_config import clear_correlation_id, configure_logging, set_correlation_id
 from src.models.predict_model import predict
 from src.models.train_model import training
 from src.models.training_args import TrainingArgs
@@ -86,12 +86,12 @@ class PipelineStore:
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._model_args: Optional[dict[str, Any]] = None
+        self._model_args: dict[str, Any] | None = None
         self._training_status = JobStatus()
         self._predict_status = JobStatus()
 
     @property
-    def model_args(self) -> Optional[dict[str, Any]]:
+    def model_args(self) -> dict[str, Any] | None:
         with self._lock:
             return self._model_args
 
@@ -144,7 +144,7 @@ class MakeDatasetResponse(BaseModel):
     """Response for POST /make_dataset."""
     status: str
     raw_data_file: str
-    processed_data_file: Optional[str]
+    processed_data_file: str | None
     date: str
     sample_percent: float
     duration: int
@@ -154,7 +154,7 @@ class PreprocessingResponse(BaseModel):
     """Response for POST /preprocessing."""
     status: str
     raw_data_file: str
-    processed_data_file: Optional[str]
+    processed_data_file: str | None
     date: str
     sample_percent: float
     duration: int
@@ -307,7 +307,7 @@ def post_predict(background_tasks: BackgroundTasks) -> PredictResponse:
         raise
     except Exception as e:
         logger.exception("Failed to start prediction")
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e)) from e
 
 
 @api.post(
@@ -337,7 +337,7 @@ def post_training(background_tasks: BackgroundTasks) -> TrainingResponse:
         raise
     except Exception as e:
         logger.exception("Failed to start training")
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e)) from e
 
 
 @api.post(

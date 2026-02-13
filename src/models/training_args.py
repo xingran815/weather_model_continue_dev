@@ -1,8 +1,6 @@
 """Pydantic model for training pipeline arguments."""
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -19,7 +17,7 @@ class TrainingArgs(BaseModel):
     """
 
     raw_data_file: str
-    processed_data_file: Optional[str] = Field(default=None, description="Set by preprocessing")
+    processed_data_file: str | None = Field(default=None, description="Set by preprocessing")
     date: str = ""
     sample_percent: float = 0.2
     duration: int = 10
