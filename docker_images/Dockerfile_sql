@@ -1,5 +1,8 @@
 FROM mysql:8.0
 
+# Build argument for DVC/Dagshub authentication
+ARG DAGSHUB_KEY
+
 # MySQL config (MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, etc.) is provided via
 # docker-compose env_file: .env at runtime.
 
@@ -10,6 +13,8 @@ COPY data/raw/weatherAUS.csv.dvc ./data/raw/weatherAUS.csv.dvc
 RUN microdnf install -y python3 python3-pip git \
     && microdnf clean all \
     && pip install dvc dvc-s3 \
+    && dvc remote modify origin --local access_key_id ${DAGSHUB_KEY} \
+    && dvc remote modify origin --local secret_access_key ${DAGSHUB_KEY} \
     && dvc pull -r origin data/raw/weatherAUS.csv
 
 # Copy the CSV data and SQL scripts into the container
