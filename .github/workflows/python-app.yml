@@ -169,22 +169,22 @@ jobs:
 
     - name: Start services with docker-compose
       run: |
-        docker-compose up -d mysql mlflow
+        docker compose up -d mysql mlflow
 
     - name: Wait for services to be ready
       run: |
         echo "Waiting for MySQL to be ready..."
-        timeout 60 bash -c 'until docker-compose exec -T mysql mysqladmin ping -h localhost --silent; do sleep 2; done' || true
+        timeout 60 bash -c 'until docker compose exec -T mysql mysqladmin ping -h localhost --silent; do sleep 2; done' || true
         echo "Waiting for MLflow to be ready..."
         sleep 10
 
     - name: Check service health
       run: |
-        docker-compose ps
-        docker-compose logs mysql
-        docker-compose logs mlflow
+        docker compose ps
+        docker compose logs mysql
+        docker compose logs mlflow
 
     - name: Stop services
       if: always()
       run: |
-        docker-compose down -v
+        docker compose down -v
