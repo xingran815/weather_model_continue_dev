@@ -1,4 +1,5 @@
 """Tests for make_dataset module: database sampling and CSV export."""
+
 from __future__ import annotations
 
 import os
@@ -42,7 +43,9 @@ class TestMakeDataset:
             result = make_dataset(sample_percent=0.2, duration=10)
 
             # Check return structure
-            assert all(key in result for key in ["raw_data_file", "processed_data_file", "date", "sample_percent", "duration"])
+            assert all(
+                key in result for key in ["raw_data_file", "processed_data_file", "date", "sample_percent", "duration"]
+            )
             assert result["processed_data_file"] is None
             assert result["sample_percent"] == 0.2
             assert result["duration"] == 10

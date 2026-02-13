@@ -10,9 +10,7 @@ from src.config import settings
 logger = logging.getLogger(__name__)
 
 
-def make_dataset(
-    sample_percent: float | None = 0.2, duration: int | None = 10
-) -> dict[str, str | None | float | int]:
+def make_dataset(sample_percent: float | None = 0.2, duration: int | None = 10) -> dict[str, str | None | float | int]:
     """
     Create a sub-dataset from the MySQL weather table and save as CSV.
 
@@ -27,20 +25,20 @@ def make_dataset(
         Dict with keys: raw_data_file, processed_data_file (None), date,
         sample_percent, duration.
     """
-    TABLE_NAME = 'weather_data'
-    NEW_TABLE_NAME = 'weather_subset'
+    TABLE_NAME = "weather_data"
+    NEW_TABLE_NAME = "weather_subset"
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-    OUTPUT_DIR= os.path.join(THIS_DIR, "../../data/raw")
+    OUTPUT_DIR = os.path.join(THIS_DIR, "../../data/raw")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     DATE = datetime.now().strftime("%Y%m%d_%H%M")
-    OUTPUT_FILE = f'{OUTPUT_DIR}/weather_subset_{DATE}.csv'
+    OUTPUT_FILE = f"{OUTPUT_DIR}/weather_subset_{DATE}.csv"
 
     engine = create_engine(
         f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{settings.mysql_host}:{settings.mysql_port}/{settings.mysql_db}"
     )
 
-    #filter query eg.loacation (Canberra, Sydney, Melbourne, Brisbane, Adelaide)
-    '''
+    # filter query eg.loacation (Canberra, Sydney, Melbourne, Brisbane, Adelaide)
+    """
     all locations:
     'Albury' 'BadgerysCreek' 'Cobar' 'CoffsHarbour' 'Moree' 'Newcastle'
      'NorahHead' 'NorfolkIsland' 'Penrith' 'Richmond' 'Sydney' 'SydneyAirport'
@@ -51,23 +49,24 @@ def make_dataset(
      'Albany' 'Witchcliffe' 'PearceRAAF' 'PerthAirport' 'Perth' 'SalmonGums'
      'Walpole' 'Hobart' 'Launceston' 'AliceSprings' 'Darwin' 'Katherine'
      'Uluru']
-     '''
-    #query = f"SELECT {', '.join(columns_to_load)} FROM {TABLE_NAME} WHERE Location='Sydney'"
+     """
+    # query = f"SELECT {', '.join(columns_to_load)} FROM {TABLE_NAME} WHERE Location='Sydney'"
 
-
-   # Drop the new table if it already exists
+    # Drop the new table if it already exists
     with engine.connect() as conn:
-        conn.execute(text(
-            f"""
+        conn.execute(
+            text(
+                f"""
             DROP TABLE IF EXISTS {NEW_TABLE_NAME};
             """
-        ))
+            )
+        )
 
     # Calculate the start and end date of the dataset
     start_date = datetime(year=2008, month=1, day=1)
     end_date = start_date + timedelta(days=365 * duration)
-    start_date = start_date.strftime('%Y-%m-%d')
-    end_date = end_date.strftime('%Y-%m-%d')
+    start_date = start_date.strftime("%Y-%m-%d")
+    end_date = end_date.strftime("%Y-%m-%d")
     logger.info(
         "Sampling window prepared",
         extra={
@@ -105,12 +104,16 @@ def make_dataset(
             extra={"table_name": NEW_TABLE_NAME, "row_count": row_count},
         )
 
-
     df = pd.read_sql(f"SELECT * FROM {NEW_TABLE_NAME}", engine)
 
     # Save the sampled data to a CSV file
     df.to_csv(OUTPUT_FILE, index=False)
 
     # return a json object with the output file and date
-    return {'raw_data_file': OUTPUT_FILE, 'processed_data_file': None, 'date': DATE,
-        'sample_percent': sample_percent, 'duration': duration}
+    return {
+        "raw_data_file": OUTPUT_FILE,
+        "processed_data_file": None,
+        "date": DATE,
+        "sample_percent": sample_percent,
+        "duration": duration,
+    }

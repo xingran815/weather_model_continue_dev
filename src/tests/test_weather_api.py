@@ -1,4 +1,5 @@
 """Tests for weather_api module: FastAPI endpoints and state management."""
+
 from __future__ import annotations
 
 import os
@@ -132,13 +133,15 @@ class TestWeatherAPI:
     def test_predict_without_training(self, client: TestClient, sample_raw_csv: str, tmp_path: Any) -> None:
         """Test POST /predict fails if training not completed."""
         # Manually set model_args without completing training
-        store.set_model_args({
-            "raw_data_file": sample_raw_csv,
-            "processed_data_file": sample_raw_csv,
-            "date": "20240101",
-            "sample_percent": 0.2,
-            "duration": 10,
-        })
+        store.set_model_args(
+            {
+                "raw_data_file": sample_raw_csv,
+                "processed_data_file": sample_raw_csv,
+                "date": "20240101",
+                "sample_percent": 0.2,
+                "duration": 10,
+            }
+        )
 
         response = client.post("/predict")
 
@@ -178,13 +181,15 @@ class TestWeatherAPI:
     def test_concurrent_training_prevented(self, client: TestClient, sample_raw_csv: str) -> None:
         """Test that concurrent training requests are blocked."""
         # Set up model args and mark training as running
-        store.set_model_args({
-            "raw_data_file": sample_raw_csv,
-            "processed_data_file": sample_raw_csv,
-            "date": "20240101",
-            "sample_percent": 0.2,
-            "duration": 10,
-        })
+        store.set_model_args(
+            {
+                "raw_data_file": sample_raw_csv,
+                "processed_data_file": sample_raw_csv,
+                "date": "20240101",
+                "sample_percent": 0.2,
+                "duration": 10,
+            }
+        )
         store.set_training_status("running", 50, "Training in progress")
 
         response = client.post("/training")

@@ -1,4 +1,5 @@
 """Pydantic model for training pipeline arguments."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, Field

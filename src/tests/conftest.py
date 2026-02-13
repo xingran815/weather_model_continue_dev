@@ -1,4 +1,5 @@
 """Shared fixtures for pytest tests across the weather prediction project."""
+
 from __future__ import annotations
 
 from collections.abc import Generator
@@ -25,31 +26,33 @@ def sample_raw_dataframe() -> pd.DataFrame:
     locations = ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"]
     wind_dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 
-    df = pd.DataFrame({
-        "Date": pd.date_range("2020-01-01", periods=n_rows, freq="D"),
-        "Location": np.random.choice(locations, n_rows),
-        "MinTemp": np.random.uniform(5, 20, n_rows),
-        "MaxTemp": np.random.uniform(15, 35, n_rows),
-        "Rainfall": np.random.uniform(0, 50, n_rows),
-        "Evaporation": np.random.uniform(0, 15, n_rows),
-        "Sunshine": np.random.uniform(0, 12, n_rows),
-        "WindGustDir": np.random.choice(wind_dirs, n_rows),
-        "WindGustSpeed": np.random.uniform(10, 80, n_rows),
-        "WindDir9am": np.random.choice(wind_dirs, n_rows),
-        "WindDir3pm": np.random.choice(wind_dirs, n_rows),
-        "WindSpeed9am": np.random.uniform(5, 40, n_rows),
-        "WindSpeed3pm": np.random.uniform(5, 40, n_rows),
-        "Humidity9am": np.random.uniform(30, 100, n_rows),
-        "Humidity3pm": np.random.uniform(20, 90, n_rows),
-        "Pressure9am": np.random.uniform(1000, 1030, n_rows),
-        "Pressure3pm": np.random.uniform(1000, 1030, n_rows),
-        "Cloud9am": np.random.randint(0, 9, n_rows),
-        "Cloud3pm": np.random.randint(0, 9, n_rows),
-        "Temp9am": np.random.uniform(10, 25, n_rows),
-        "Temp3pm": np.random.uniform(15, 30, n_rows),
-        "RainToday": np.random.choice(["Yes", "No"], n_rows),
-        "RainTomorrow": np.random.choice(["Yes", "No"], n_rows),
-    })
+    df = pd.DataFrame(
+        {
+            "Date": pd.date_range("2020-01-01", periods=n_rows, freq="D"),
+            "Location": np.random.choice(locations, n_rows),
+            "MinTemp": np.random.uniform(5, 20, n_rows),
+            "MaxTemp": np.random.uniform(15, 35, n_rows),
+            "Rainfall": np.random.uniform(0, 50, n_rows),
+            "Evaporation": np.random.uniform(0, 15, n_rows),
+            "Sunshine": np.random.uniform(0, 12, n_rows),
+            "WindGustDir": np.random.choice(wind_dirs, n_rows),
+            "WindGustSpeed": np.random.uniform(10, 80, n_rows),
+            "WindDir9am": np.random.choice(wind_dirs, n_rows),
+            "WindDir3pm": np.random.choice(wind_dirs, n_rows),
+            "WindSpeed9am": np.random.uniform(5, 40, n_rows),
+            "WindSpeed3pm": np.random.uniform(5, 40, n_rows),
+            "Humidity9am": np.random.uniform(30, 100, n_rows),
+            "Humidity3pm": np.random.uniform(20, 90, n_rows),
+            "Pressure9am": np.random.uniform(1000, 1030, n_rows),
+            "Pressure3pm": np.random.uniform(1000, 1030, n_rows),
+            "Cloud9am": np.random.randint(0, 9, n_rows),
+            "Cloud3pm": np.random.randint(0, 9, n_rows),
+            "Temp9am": np.random.uniform(10, 25, n_rows),
+            "Temp3pm": np.random.uniform(15, 30, n_rows),
+            "RainToday": np.random.choice(["Yes", "No"], n_rows),
+            "RainTomorrow": np.random.choice(["Yes", "No"], n_rows),
+        }
+    )
 
     # Introduce some missing values to simulate real data
     for col in ["MinTemp", "MaxTemp", "Rainfall", "Evaporation", "Sunshine"]:
@@ -101,31 +104,33 @@ def sample_raw_csv(tmp_path: Any) -> str:
     Returns:
         Path to the temporary CSV file.
     """
-    df = pd.DataFrame({
-        "Date": pd.date_range("2020-01-01", periods=50, freq="D"),
-        "Location": ["Sydney"] * 50,
-        "MinTemp": np.random.uniform(10, 20, 50),
-        "MaxTemp": np.random.uniform(20, 30, 50),
-        "Rainfall": np.random.uniform(0, 10, 50),
-        "Evaporation": np.random.uniform(2, 8, 50),
-        "Sunshine": np.random.uniform(5, 10, 50),
-        "WindGustDir": ["N"] * 50,
-        "WindGustSpeed": np.random.uniform(20, 50, 50),
-        "WindDir9am": ["N"] * 50,
-        "WindDir3pm": ["S"] * 50,
-        "WindSpeed9am": np.random.uniform(10, 30, 50),
-        "WindSpeed3pm": np.random.uniform(10, 30, 50),
-        "Humidity9am": np.random.uniform(50, 80, 50),
-        "Humidity3pm": np.random.uniform(40, 70, 50),
-        "Pressure9am": np.random.uniform(1010, 1020, 50),
-        "Pressure3pm": np.random.uniform(1010, 1020, 50),
-        "Cloud9am": np.random.randint(2, 7, 50),
-        "Cloud3pm": np.random.randint(2, 7, 50),
-        "Temp9am": np.random.uniform(15, 22, 50),
-        "Temp3pm": np.random.uniform(18, 28, 50),
-        "RainToday": np.random.choice(["Yes", "No"], 50),
-        "RainTomorrow": np.random.choice(["Yes", "No"], 50),
-    })
+    df = pd.DataFrame(
+        {
+            "Date": pd.date_range("2020-01-01", periods=50, freq="D"),
+            "Location": ["Sydney"] * 50,
+            "MinTemp": np.random.uniform(10, 20, 50),
+            "MaxTemp": np.random.uniform(20, 30, 50),
+            "Rainfall": np.random.uniform(0, 10, 50),
+            "Evaporation": np.random.uniform(2, 8, 50),
+            "Sunshine": np.random.uniform(5, 10, 50),
+            "WindGustDir": ["N"] * 50,
+            "WindGustSpeed": np.random.uniform(20, 50, 50),
+            "WindDir9am": ["N"] * 50,
+            "WindDir3pm": ["S"] * 50,
+            "WindSpeed9am": np.random.uniform(10, 30, 50),
+            "WindSpeed3pm": np.random.uniform(10, 30, 50),
+            "Humidity9am": np.random.uniform(50, 80, 50),
+            "Humidity3pm": np.random.uniform(40, 70, 50),
+            "Pressure9am": np.random.uniform(1010, 1020, 50),
+            "Pressure3pm": np.random.uniform(1010, 1020, 50),
+            "Cloud9am": np.random.randint(2, 7, 50),
+            "Cloud3pm": np.random.randint(2, 7, 50),
+            "Temp9am": np.random.uniform(15, 22, 50),
+            "Temp3pm": np.random.uniform(18, 28, 50),
+            "RainToday": np.random.choice(["Yes", "No"], 50),
+            "RainTomorrow": np.random.choice(["Yes", "No"], 50),
+        }
+    )
 
     csv_path = tmp_path / "sample_weather.csv"
     df.to_csv(csv_path, index=False)
@@ -147,18 +152,20 @@ def sample_processed_csv(tmp_path: Any) -> str:
     n_rows = 50
 
     # Create normalized features
-    df = pd.DataFrame({
-        "MinTemp": np.random.uniform(-1, 1, n_rows),
-        "MaxTemp": np.random.uniform(-1, 1, n_rows),
-        "Rainfall": np.random.uniform(-1, 1, n_rows),
-        "Humidity9am": np.random.uniform(-1, 1, n_rows),
-        "Pressure9am": np.random.uniform(-1, 1, n_rows),
-        "Location_Sydney": [1.0] * 25 + [0.0] * 25,
-        "Location_Melbourne": [0.0] * 25 + [1.0] * 25,
-        "WindDir9am_N": np.random.choice([0.0, 1.0], n_rows),
-        "RainToday": np.random.choice([True, False], n_rows),
-        "RainTomorrow": np.random.choice([True, False], n_rows),
-    })
+    df = pd.DataFrame(
+        {
+            "MinTemp": np.random.uniform(-1, 1, n_rows),
+            "MaxTemp": np.random.uniform(-1, 1, n_rows),
+            "Rainfall": np.random.uniform(-1, 1, n_rows),
+            "Humidity9am": np.random.uniform(-1, 1, n_rows),
+            "Pressure9am": np.random.uniform(-1, 1, n_rows),
+            "Location_Sydney": [1.0] * 25 + [0.0] * 25,
+            "Location_Melbourne": [0.0] * 25 + [1.0] * 25,
+            "WindDir9am_N": np.random.choice([0.0, 1.0], n_rows),
+            "RainToday": np.random.choice([True, False], n_rows),
+            "RainTomorrow": np.random.choice([True, False], n_rows),
+        }
+    )
 
     csv_path = tmp_path / "sample_preprocessed.csv"
     df.to_csv(csv_path, index=False)
@@ -197,18 +204,19 @@ def mock_mlflow() -> Generator[MagicMock, None, None]:
     Yields:
         Patched mlflow module with mocked methods.
     """
-    with patch("mlflow.set_tracking_uri"), \
-         patch("mlflow.get_experiment_by_name") as mock_get_exp, \
-         patch("mlflow.create_experiment") as mock_create_exp, \
-         patch("mlflow.set_experiment"), \
-         patch("mlflow.start_run") as mock_start_run, \
-         patch("mlflow.log_params"), \
-         patch("mlflow.log_metric"), \
-         patch("mlflow.log_artifact"), \
-         patch("mlflow.sklearn.log_model") as mock_log_model, \
-         patch("mlflow.set_tag"), \
-         patch("mlflow.sklearn.load_model") as mock_load_model:
-
+    with (
+        patch("mlflow.set_tracking_uri"),
+        patch("mlflow.get_experiment_by_name") as mock_get_exp,
+        patch("mlflow.create_experiment") as mock_create_exp,
+        patch("mlflow.set_experiment"),
+        patch("mlflow.start_run") as mock_start_run,
+        patch("mlflow.log_params"),
+        patch("mlflow.log_metric"),
+        patch("mlflow.log_artifact"),
+        patch("mlflow.sklearn.log_model") as mock_log_model,
+        patch("mlflow.set_tag"),
+        patch("mlflow.sklearn.load_model") as mock_load_model,
+    ):
         # Configure experiment
         mock_experiment = MagicMock()
         mock_experiment.experiment_id = "test_experiment_id"

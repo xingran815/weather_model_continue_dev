@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """FastAPI application for weather forecasting: dataset creation, preprocessing, training, prediction."""
+
 from __future__ import annotations
 
 import logging
@@ -76,6 +77,7 @@ async def logging_middleware(request: Request, call_next):
 @dataclass
 class JobStatus:
     """Status for a long-running job (training or prediction)."""
+
     status: str = "inactive"  # inactive | running | completed | failed
     progress: int = 0
     message: str = ""
@@ -136,12 +138,14 @@ store = PipelineStore()
 
 class MakeDatasetRequest(BaseModel):
     """Request body for POST /make_dataset."""
+
     sample_percent: float = Field(default=0.2, ge=0.0, le=1.0, description="Fraction of rows to sample")
     duration: int = Field(default=10, ge=1, le=20, description="Number of years of data from 2008-01-01")
 
 
 class MakeDatasetResponse(BaseModel):
     """Response for POST /make_dataset."""
+
     status: str
     raw_data_file: str
     processed_data_file: str | None
@@ -152,6 +156,7 @@ class MakeDatasetResponse(BaseModel):
 
 class PreprocessingResponse(BaseModel):
     """Response for POST /preprocessing."""
+
     status: str
     raw_data_file: str
     processed_data_file: str | None
@@ -162,26 +167,31 @@ class PreprocessingResponse(BaseModel):
 
 class TrainingResponse(BaseModel):
     """Response for POST /training."""
+
     status: str
 
 
 class PredictResponse(BaseModel):
     """Response for POST /predict."""
+
     status: str
 
 
 class DataVersioningRequest(BaseModel):
     """Request body for POST /data-versioning."""
+
     file_path: str = Field(..., description="Path to the file to version with DVC")
 
 
 class DataVersioningResponse(BaseModel):
     """Response for POST /data-versioning."""
+
     status: str
 
 
 class JobStatusResponse(BaseModel):
     """Response for GET /training-status and GET /predict-status."""
+
     status: str
     progress: int
     message: str
@@ -244,9 +254,7 @@ def post_make_dataset(body: MakeDatasetRequest) -> MakeDatasetResponse:
         return MakeDatasetResponse(status="sub-dataset is created.", **result)
     except Exception as e:
         logger.exception("Failed to create sub-dataset")
-        raise HTTPException(
-            status_code=503, detail=f"Failed to create sub-dataset: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=503, detail=f"Failed to create sub-dataset: {str(e)}") from e
 
 
 @api.post(
@@ -269,9 +277,7 @@ def post_preprocessing() -> PreprocessingResponse:
         return PreprocessingResponse(status="data is preprocessed.", **model_args)
     except Exception as e:
         logger.exception("Failed to preprocess data")
-        raise HTTPException(
-            status_code=503, detail=f"Failed to preprocess data: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=503, detail=f"Failed to preprocess data: {str(e)}") from e
 
 
 @api.post(
@@ -353,9 +359,7 @@ def post_data_versioning(body: DataVersioningRequest) -> DataVersioningResponse:
         return DataVersioningResponse(status=f"data versioning is completed for {body.file_path}.")
     except Exception as e:
         logger.exception("Failed to version data")
-        raise HTTPException(
-            status_code=503, detail=f"Failed to version data: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=503, detail=f"Failed to version data: {str(e)}") from e
 
 
 @api.get(

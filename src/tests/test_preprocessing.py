@@ -1,4 +1,5 @@
 """Tests for data preprocessing module: normalization and data cleaning."""
+
 from __future__ import annotations
 
 import os
@@ -15,10 +16,12 @@ class TestVectorNormalize:
 
     def test_vector_normalize_basic(self) -> None:
         """Test basic L2 normalization and edge cases."""
-        df = pd.DataFrame({
-            "a": [3.0, 4.0, 0.0, np.nan],
-            "b": [4.0, 3.0, 0.0, 4.0],
-        })
+        df = pd.DataFrame(
+            {
+                "a": [3.0, 4.0, 0.0, np.nan],
+                "b": [4.0, 3.0, 0.0, 4.0],
+            }
+        )
         result = vector_normalize(df)
 
         # Check shape and no NaN in output
@@ -103,31 +106,33 @@ class TestPreprocessing:
 
     def test_preprocessing_handles_missing_values(self, tmp_path: Any) -> None:
         """Test that missing values and 'NA' strings are handled correctly."""
-        df_with_issues = pd.DataFrame({
-            "Date": pd.date_range("2020-01-01", periods=15, freq="D"),
-            "Location": ["Sydney"] * 15,
-            "MinTemp": [15.0, np.nan, 18.0] + [16.0] * 12,
-            "MaxTemp": [25.0] * 15,
-            "Rainfall": [2.0] * 15,
-            "Evaporation": [5.0] * 15,
-            "Sunshine": [8.0] * 15,
-            "WindGustDir": ["N"] * 15,
-            "WindGustSpeed": [30.0] * 15,
-            "WindDir9am": ["N"] * 15,
-            "WindDir3pm": ["S"] * 15,
-            "WindSpeed9am": [15.0] * 15,
-            "WindSpeed3pm": [20.0] * 15,
-            "Humidity9am": [60.0] * 15,
-            "Humidity3pm": [55.0] * 15,
-            "Pressure9am": [1015.0] * 15,
-            "Pressure3pm": [1013.0] * 15,
-            "Cloud9am": [4] * 15,
-            "Cloud3pm": [5] * 15,
-            "Temp9am": [18.0] * 15,
-            "Temp3pm": [23.0] * 15,
-            "RainToday": ["No"] * 15,
-            "RainTomorrow": ["Yes", "No", "NA"] + ["No"] * 12,
-        })
+        df_with_issues = pd.DataFrame(
+            {
+                "Date": pd.date_range("2020-01-01", periods=15, freq="D"),
+                "Location": ["Sydney"] * 15,
+                "MinTemp": [15.0, np.nan, 18.0] + [16.0] * 12,
+                "MaxTemp": [25.0] * 15,
+                "Rainfall": [2.0] * 15,
+                "Evaporation": [5.0] * 15,
+                "Sunshine": [8.0] * 15,
+                "WindGustDir": ["N"] * 15,
+                "WindGustSpeed": [30.0] * 15,
+                "WindDir9am": ["N"] * 15,
+                "WindDir3pm": ["S"] * 15,
+                "WindSpeed9am": [15.0] * 15,
+                "WindSpeed3pm": [20.0] * 15,
+                "Humidity9am": [60.0] * 15,
+                "Humidity3pm": [55.0] * 15,
+                "Pressure9am": [1015.0] * 15,
+                "Pressure3pm": [1013.0] * 15,
+                "Cloud9am": [4] * 15,
+                "Cloud3pm": [5] * 15,
+                "Temp9am": [18.0] * 15,
+                "Temp3pm": [23.0] * 15,
+                "RainToday": ["No"] * 15,
+                "RainTomorrow": ["Yes", "No", "NA"] + ["No"] * 12,
+            }
+        )
 
         csv_path = tmp_path / "data_with_issues.csv"
         df_with_issues.to_csv(csv_path, index=False)

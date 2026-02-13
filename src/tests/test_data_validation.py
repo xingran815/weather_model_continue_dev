@@ -1,4 +1,5 @@
 """Tests for data validation: schema and value checks."""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -45,8 +46,9 @@ class TestDataValidation:
     def test_processed_data_all_numeric(self, sample_processed_dataframe: pd.DataFrame) -> None:
         """Test that all processed data columns are numeric."""
         for col in sample_processed_dataframe.columns:
-            assert pd.api.types.is_numeric_dtype(sample_processed_dataframe[col]) or \
-                   pd.api.types.is_bool_dtype(sample_processed_dataframe[col])
+            assert pd.api.types.is_numeric_dtype(sample_processed_dataframe[col]) or pd.api.types.is_bool_dtype(
+                sample_processed_dataframe[col]
+            )
 
     def test_processed_data_target_is_binary(self, sample_processed_dataframe: pd.DataFrame) -> None:
         """Test that RainTomorrow in processed data is binary."""
@@ -57,8 +59,7 @@ class TestDataValidation:
     def test_processed_data_has_features(self, sample_processed_dataframe: pd.DataFrame) -> None:
         """Test that processed data has sufficient features for modeling."""
         # Should have more than just target columns
-        feature_cols = [col for col in sample_processed_dataframe.columns
-                       if col not in ["RainTomorrow", "RainToday"]]
+        feature_cols = [col for col in sample_processed_dataframe.columns if col not in ["RainTomorrow", "RainToday"]]
         assert len(feature_cols) > 10  # Should have multiple features
 
     def test_temperature_ranges_valid(self, sample_raw_dataframe: pd.DataFrame) -> None:
@@ -69,7 +70,7 @@ class TestDataValidation:
             # Remove NaNs for this check
             min_temps = df["MinTemp"].dropna()
             assert min_temps.min() >= -20  # Reasonable minimum
-            assert min_temps.max() <= 50   # Reasonable maximum
+            assert min_temps.max() <= 50  # Reasonable maximum
 
         if "MaxTemp" in df.columns:
             max_temps = df["MaxTemp"].dropna()
@@ -97,7 +98,24 @@ class TestDataValidation:
                 assert all(val in ["Yes", "No", "NA"] for val in values)
 
         # Wind directions should be valid compass directions
-        valid_dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "NNE", "ENE", "ESE", "SSE", "SSW", "WSW", "WNW", "NNW"]
+        valid_dirs = [
+            "N",
+            "NE",
+            "E",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW",
+            "NNE",
+            "ENE",
+            "ESE",
+            "SSE",
+            "SSW",
+            "WSW",
+            "WNW",
+            "NNW",
+        ]
         for col in ["WindGustDir", "WindDir9am", "WindDir3pm"]:
             if col in df.columns:
                 values = df[col].dropna().unique()

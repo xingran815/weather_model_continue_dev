@@ -1,4 +1,5 @@
 """Training pipeline: hyperparameter search, model selection, and MLflow logging."""
+
 from __future__ import annotations
 
 import logging
@@ -52,7 +53,7 @@ def training(
     logger.setLevel(logging.INFO)
     logger.handlers = []
     handler = logging.StreamHandler(log_stream)
-    handler.setFormatter(logging.Formatter('%(message)s'))
+    handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
 
     # initialize mlflow experiment; allow override via env for Docker
@@ -82,9 +83,7 @@ def training(
         callback(20, "Splitting data...")
 
     # Split dataset into test and train set
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, stratify=y
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, stratify=y)
 
     X_train_np = X_train.values
     X_test_np = X_test.values
@@ -208,10 +207,12 @@ def training(
         mlflow.log_artifact(PROCESSED_DATA_FILE, artifact_path="preprocessed_dataset")
         # log best model itself
         model_name = "best_AUS_weather_model"
-        model_info = mlflow.sklearn.log_model(sk_model=best_model,
-                                              name=f"best_model_{best_name.lower()}",
-                                              input_example=X_train_np[:1],
-                                              registered_model_name=model_name)
+        model_info = mlflow.sklearn.log_model(
+            sk_model=best_model,
+            name=f"best_model_{best_name.lower()}",
+            input_example=X_train_np[:1],
+            registered_model_name=model_name,
+        )
         # add tags
         mlflow.set_tag("best_model_name", f"{best_name}")
         mlflow.set_tag("sample_percent", f"{training_args.sample_percent}")
@@ -224,13 +225,19 @@ def training(
             production_mean_cv_f1 = client.get_run(version.run_id).data.metrics.get("mean_cv_f1", 0)
             # check if the trained model outperforms the champion model
             if best_mean_cv_f1 > production_mean_cv_f1:
-                logger.info(f"promoting new model to champion, new best f1: {best_mean_cv_f1}, old best f1: {production_mean_cv_f1}")
+                logger.info(
+                    f"promoting new model to champion, new best f1: {best_mean_cv_f1}, old best f1: {production_mean_cv_f1}"
+                )
                 # promote the new current best model to champion
-                client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
+                client.set_registered_model_alias(
+                    name=model_name, alias="champion", version=model_info.registered_model_version
+                )
         except Exception as e:
             # if no champion model exists, create one
             logger.debug("No existing champion alias: %s", e)
-            client.set_registered_model_alias(name=model_name, alias="champion", version=model_info.registered_model_version)
+            client.set_registered_model_alias(
+                name=model_name, alias="champion", version=model_info.registered_model_version
+            )
 
     logger.info("best model is saved.")
 
@@ -243,6 +250,5 @@ def training(
     if callback:
         callback(100, log_stream.getvalue())
 
+
 #####################################################
-
-

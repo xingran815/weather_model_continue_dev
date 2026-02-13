@@ -1,4 +1,5 @@
 """Tests for train_model module: model training and MLflow integration."""
+
 from __future__ import annotations
 
 import pytest

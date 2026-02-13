@@ -1,4 +1,5 @@
 """Load champion model from MLflow, run predictions on processed data, optionally evaluate."""
+
 from __future__ import annotations
 
 import logging
@@ -41,7 +42,7 @@ def predict(
     # Clear existing handlers to avoid duplicates if called multiple times
     logger.handlers = []
     handler = logging.StreamHandler(log_stream)
-    handler.setFormatter(logging.Formatter('%(message)s'))
+    handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
 
     logger.info("Starting prediction...")
@@ -104,7 +105,7 @@ def predict(
         logger.info(f"  Recall   : {rec}")
         logger.info(f"  F1-score : {f1}")
 
-        cm =confusion_matrix(y_true, y_pred)
+        cm = confusion_matrix(y_true, y_pred)
         labels = ["No Rain", "Rain"]
         clabels = ["No Rain Pred.", "Rain Pred."]
         df_cm = pd.DataFrame(cm, index=labels, columns=clabels)
@@ -125,4 +126,3 @@ def predict(
 
     if callback:
         callback(100, log_stream.getvalue())
-

@@ -1,4 +1,5 @@
 """Tests for predict_model module: prediction and evaluation."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -55,11 +56,13 @@ class TestPredict:
     ) -> None:
         """Test prediction without ground truth labels."""
         # Create CSV without RainTomorrow column
-        df = pd.DataFrame({
-            "feature_1": np.random.uniform(-1, 1, 30),
-            "feature_2": np.random.uniform(-1, 1, 30),
-            "RainToday": np.random.choice([True, False], 30),
-        })
+        df = pd.DataFrame(
+            {
+                "feature_1": np.random.uniform(-1, 1, 30),
+                "feature_2": np.random.uniform(-1, 1, 30),
+                "RainToday": np.random.choice([True, False], 30),
+            }
+        )
         input_csv = tmp_path / "input_no_target.csv"
         df.to_csv(input_csv, index=False)
 
@@ -127,10 +130,12 @@ class TestPredict:
     ) -> None:
         """Test prediction when input data is missing some expected features."""
         # Create CSV with only subset of features
-        df = pd.DataFrame({
-            "feature_1": np.random.uniform(-1, 1, 20),
-            "RainTomorrow": np.random.choice([True, False], 20),
-        })
+        df = pd.DataFrame(
+            {
+                "feature_1": np.random.uniform(-1, 1, 20),
+                "RainTomorrow": np.random.choice([True, False], 20),
+            }
+        )
         input_csv = tmp_path / "input_missing_features.csv"
         df.to_csv(input_csv, index=False)
 

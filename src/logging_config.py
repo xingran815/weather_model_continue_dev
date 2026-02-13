@@ -1,4 +1,5 @@
 """Shared logging configuration with JSON output and correlation IDs."""
+
 from __future__ import annotations
 
 import contextvars
@@ -8,9 +9,7 @@ import sys
 from datetime import UTC, datetime
 from typing import Any
 
-_correlation_id_ctx: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "correlation_id", default="-"
-)
+_correlation_id_ctx: contextvars.ContextVar[str] = contextvars.ContextVar("correlation_id", default="-")
 
 
 def set_correlation_id(correlation_id: str) -> None:
@@ -88,9 +87,7 @@ def configure_logging(level: int = logging.INFO) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
-    handler_exists = any(
-        isinstance(handler.formatter, JsonFormatter) for handler in root_logger.handlers
-    )
+    handler_exists = any(isinstance(handler.formatter, JsonFormatter) for handler in root_logger.handlers)
     if handler_exists:
         return
 
