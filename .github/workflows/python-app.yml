@@ -91,9 +91,24 @@ jobs:
         coverage report --show-missing
 
   docker-build:
-    name: Build and Scan Docker Images
+    name: Build and Scan ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: [test]
+    strategy:
+      matrix:
+        service:
+          - name: model
+            dockerfile: docker_images/Dockerfile_model
+            image: weather-model:test
+          - name: mlflow
+            dockerfile: docker_images/Dockerfile_mlflow
+            image: weather-mlflow:test
+          - name: streamlit
+            dockerfile: docker_images/Dockerfile_streamlit
+            image: weather-streamlit:test
+          - name: mysql
+            dockerfile: docker_images/Dockerfile_sql
+            image: weather-mysql:test
 
     steps:
     - uses: actions/checkout@v4
@@ -101,21 +116,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build model service image
+    - name: Build ${{ matrix.service.name }} image
       run: |
-        docker build -f docker_images/Dockerfile_model -t weather-model:test .
-
-    - name: Build MLflow image
-      run: |
-        docker build -f docker_images/Dockerfile_mlflow -t weather-mlflow:test .
-
-    - name: Build Streamlit image
-      run: |
-        docker build -f docker_images/Dockerfile_streamlit -t weather-streamlit:test .
-
-    - name: Build MySQL image
-      run: |
-        docker build -f docker_images/Dockerfile_sql -t weather-mysql:test .
+        docker build -f ${{ matrix.service.dockerfile }} -t ${{ matrix.service.image }} --build-arg DAGSHUB_KEY=${{ secrets.DAGSHUB_KEY }} .
 
     - name: Install Trivy
       run: |
@@ -124,34 +127,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install trivy -y
 
-    - name: Scan model image with Trivy
+    - name: Scan ${{ matrix.service.name }} image with Trivy
       run: |
-        trivy image --severity HIGH,CRITICAL --exit-code 0 weather-model:test
+        trivy image --severity HIGH,CRITICAL --exit-code 0 ${{ matrix.service.image }}
 
-    - name: Scan MLflow image with Trivy
+    - name: Save Docker image as artifact
       run: |
-        trivy image --severity HIGH,CRITICAL --exit-code 0 weather-mlflow:test
+        docker save ${{ matrix.service.image }} -o ${{ matrix.service.name }}-image.tar
 
-    - name: Scan Streamlit image with Trivy
-      run: |
-        trivy image --severity HIGH,CRITICAL --exit-code 0 weather-streamlit:test
-
-    - name: Scan MySQL image with Trivy
-      run: |
-        trivy image --severity HIGH,CRITICAL --exit-code 0 weather-mysql:test
-
-    - name: Save Docker images as artifacts
-      run: |
-        docker save weather-model:test -o model-image.tar
-        docker save weather-mlflow:test -o mlflow-image.tar
-
-    - name: Upload Docker images
+    - name: Upload Docker image
       uses: actions/upload-artifact@v4
       with:
-        name: docker-images
-        path: |
-          model-image.tar
-          mlflow-image.tar
+        name: docker-image-${{ matrix.service.name }}
+        path: ${{ matrix.service.name }}-image.tar
         retention-days: 1
 
   integration-test:
@@ -161,6 +149,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Download all Docker images
+      uses: actions/download-artifact@v4
+      with:
+        pattern: docker-image-*
+        merge-multiple: true
+
+    - name: Load Docker images
+      run: |
+        docker load -i model-image.tar
+        docker load -i mlflow-image.tar
+        docker load -i streamlit-image.tar
+        docker load -i mysql-image.tar
 
     - name: Create .env file
       run: |
